@@ -3,10 +3,13 @@ import {
   BottomSheet,
   GlydeMap,
   GlydeText,
+  hapticFor,
+  motion,
   SecondaryButton,
   SheetHeightProvider,
   space,
   useSheetHeight,
+  useToast,
   type BottomSheetHandle,
   type GlydeMapHandle,
   type SheetSnap,
@@ -15,6 +18,9 @@ import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
 import { Keyboard, StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+
+import { arrivalAt } from '@glyde/domain';
 
 import { useFareRules } from '@/features/fares/useFareRules';
 import { useLiveBuses } from '@/features/buses/useLiveBuses';
@@ -22,8 +28,11 @@ import { useLocationPermission } from '@/features/location/useLocationPermission
 import { useNearestStop } from '@/features/location/useNearestStop';
 import { useNetwork, type Stop } from '@/features/network/useNetwork';
 import { useRecentStops } from '@/features/network/useRecentStops';
+import { useNow } from '@/features/time/useNow';
+import { useActiveTrip } from '@/features/trips/useActiveTrip';
 import { useTripOptions } from '@/features/trips/useTripOptions';
 
+import { ActiveTripCard, type TripPhase } from './components/ActiveTripCard';
 import { HomeStatus } from './components/HomeStatus';
 import { IdleSheet } from './components/IdleSheet';
 import { TripResults } from './components/TripResults';
@@ -33,6 +42,9 @@ import { useHomeCamera } from './hooks/useHomeCamera';
 import { useTripPlanner } from './hooks/useTripPlanner';
 
 // Until the user's location or the service area is known: central Accra.
+/** "Bus approaching" fires when the live ETA to the pickup reaches this (decision 2026-10-14). */
+const APPROACHING_MIN = 5;
+
 const INITIAL_REGION = { latitude: 5.62, longitude: -0.18, latitudeDelta: 0.25, longitudeDelta: 0.25 };
 
 /**
@@ -55,6 +67,10 @@ function HomeContent() {
   const [snap, setSnap] = useState<SheetSnap>('collapsed');
   const [planning, setPlanning] = useState(false);
   const [selection, setSelection] = useState<{ searchKey: string; tripId: string } | null>(null);
+  const [planAnother, setPlanAnother] = useState(false);
+  const toast = useToast();
+  const now = useNow(15_000);
+  const { trip: active } = useActiveTrip();
 
   const buses = useLiveBuses();
   const { permission, openSettings } = useLocationPermission();
@@ -84,6 +100,62 @@ function HomeContent() {
   const searchKey = `${planner.pickup?.stopId}>${planner.dropoffIds.join(',')}`;
   const selectedTripId = selection?.searchKey === searchKey ? selection.tripId : null;
 
+  // ── Active trip (uix-spec 2.5 pre-boarding; DESIGN.md §8.6) ────────────────
+  const showActive = !!active && !planAnother;
+  const activeBus = active ? buses.buses.find((b) => b.tripId === active.tripId) : undefined;
+  const activeRoute = active && network ? (network.routes.find((r) => r.id === active.routeId) ?? null) : null;
+  const etaAt = active
+    ? arrivalAt(
+        activeBus
+          ? {
+              status: 'active',
+              departsAt: active.departsAt,
+              busDistanceM: activeBus.position.distanceM,
+              busRecordedAt: activeBus.recordedAt,
+            }
+          : { status: 'scheduled', departsAt: active.departsAt, busDistanceM: null, busRecordedAt: null },
+        active.pickup.distanceM,
+        { lengthM: active.lengthM, freeFlowS: active.freeFlowS },
+      )
+    : null;
+  const etaMinutes = etaAt === null ? null : Math.max(0, Math.round((etaAt - now) / 60_000));
+  const phase: TripPhase = !active
+    ? 'scheduled'
+    : active.boarded
+      ? 'boarded'
+      : activeBus && activeBus.position.distanceM >= active.pickup.distanceM
+        ? 'passed'
+        : !activeBus && active.tripStatus === 'scheduled'
+          ? 'scheduled'
+          : etaMinutes !== null && etaMinutes <= 1
+            ? 'arriving'
+            : 'on_the_way';
+
+  // Bring the sheet up to show the active trip when it appears.
+  const activeId = showActive ? active?.paymentId : null;
+  useEffect(() => {
+    if (activeId) sheet.current?.snapTo('half');
+  }, [activeId]);
+
+  // "Bus approaching" — once per trip, when the live ETA reaches 5 min (decision 2026-10-14).
+  const alertedFor = useRef<string | null>(null);
+  const approaching =
+    !!active &&
+    !!activeBus &&
+    (phase === 'on_the_way' || phase === 'arriving') &&
+    etaMinutes !== null &&
+    etaMinutes <= APPROACHING_MIN;
+  useEffect(() => {
+    if (!approaching || !active || alertedFor.current === active.tripId) return;
+    alertedFor.current = active.tripId;
+    hapticFor('approaching');
+    toast.show({
+      tone: 'warning',
+      title: `Bus approaching ${active.pickup.name}`,
+      message: 'Head to the stop and have your ticket ready.',
+    });
+  }, [approaching, active, toast]);
+
   const startPlanning = () => {
     setPlanning(true);
     planner.focus(`dropoff-${planner.dropoffs[0].key}`);
@@ -102,9 +174,11 @@ function HomeContent() {
         initialRegion={INITIAL_REGION}
         bottomInset={settledHeight}
         showsUserLocation={permission === 'granted'}
+        focus={showActive && activeBus ? activeBus.position : undefined}
+        followFocus={showActive}
         onReady={onMapReady}
       >
-        {buses.buses.map((bus) => (
+        {(showActive ? buses.buses.filter((b) => b.tripId === active?.tripId) : buses.buses).map((bus) => (
           <AnimatedBusMarker
             key={bus.tripId}
             fix={{
@@ -113,16 +187,23 @@ function HomeContent() {
               heading: bus.position.heading ?? undefined,
             }}
             tickIntervalMs={bus.intervalMs}
-            selected={bus.tripId === selectedTripId}
+            selected={showActive || bus.tripId === selectedTripId}
             accessibilityLabel={`Bus ${bus.plate}`}
           />
         ))}
-        {showResults && planner.route && pickupStop && dropoffStops.length > 0 && (
-          <TripRouteOverlay map={map} route={planner.route} pickup={pickupStop} dropoffs={dropoffStops} />
+        {showActive && active && activeRoute ? (
+          <TripRouteOverlay map={map} route={activeRoute} pickup={active.pickup} dropoffs={active.dropoffs} />
+        ) : (
+          showResults &&
+          planner.route &&
+          pickupStop &&
+          dropoffStops.length > 0 && (
+            <TripRouteOverlay map={map} route={planner.route} pickup={pickupStop} dropoffs={dropoffStops} />
+          )
         )}
       </GlydeMap>
 
-      <HomeStatus buses={buses} permission={permission} onOpenSettings={openSettings} />
+      <HomeStatus buses={buses} permission={permission} onOpenSettings={openSettings} quiet={showActive} />
 
       <BottomSheet
         ref={sheet}
@@ -133,7 +214,25 @@ function HomeContent() {
         }}
         accessibilityLabel="Trip planner"
       >
-        {!planning ? (
+        {showActive && active ? (
+          <Animated.View
+            entering={FadeIn.duration(motion.base)}
+            exiting={FadeOut.duration(motion.fast)}
+            layout={LinearTransition}
+          >
+            <ActiveTripCard
+              trip={active}
+              phase={phase}
+              etaMinutes={etaMinutes}
+              etaAt={etaAt}
+              onOpenTicket={() => router.push({ pathname: '/ticket', params: { paymentId: active.paymentId } })}
+              onPlanAnother={() => {
+                setPlanAnother(true);
+                startPlanning();
+              }}
+            />
+          </Animated.View>
+        ) : !planning ? (
           <IdleSheet snap={snap} onWhereTo={startPlanning} />
         ) : networkError ? (
           <View style={styles.message}>

@@ -9,13 +9,15 @@ type Props = {
   buses: LiveBusesState;
   permission: LocationPermission;
   onOpenSettings: () => void;
+  /** Active trip: hide the general 'finding / no buses' chips. */
+  quiet?: boolean;
 };
 
 /**
  * Everything pinned over the top of the map (DESIGN.md §11 states). Banners for things the
  * user can act on; one quiet chip for loading / empty.
  */
-export function HomeStatus({ buses, permission, onOpenSettings }: Props) {
+export function HomeStatus({ buses, permission, onOpenSettings, quiet = false }: Props) {
   const insets = useSafeAreaInsets();
   return (
     <View pointerEvents="box-none" style={[styles.stack, { top: insets.top + space.xs }]}>
@@ -32,8 +34,8 @@ export function HomeStatus({ buses, permission, onOpenSettings }: Props) {
       ) : !buses.live && buses.status === 'ready' ? (
         <Banner tone="info" message="Offline — showing last known bus positions." />
       ) : null}
-      {buses.status === 'loading' && <StatusChip label="Finding buses…" />}
-      {buses.status === 'ready' && buses.live && buses.buses.length === 0 && (
+      {!quiet && buses.status === 'loading' && <StatusChip label="Finding buses…" />}
+      {!quiet && buses.status === 'ready' && buses.live && buses.buses.length === 0 && (
         <StatusChip label="No buses running right now" />
       )}
     </View>

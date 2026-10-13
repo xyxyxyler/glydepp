@@ -1,5 +1,16 @@
 import { seatWarning, totalFare, travelSeconds, type FareRules } from '@glyde/domain';
-import { BusCard, GlydeText, motion, RollingNumber, SecondaryButton, Skeleton, formatGHS, size, space, stagger } from '@glyde/ui';
+import {
+  BusCard,
+  GlydeText,
+  motion,
+  RollingNumber,
+  SecondaryButton,
+  Skeleton,
+  formatGHS,
+  size,
+  space,
+  stagger,
+} from '@glyde/ui';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
 
@@ -50,7 +61,12 @@ export function TripResults({ route, pickup, dropoffs, options, fareRules, selec
             Fare pending
           </GlydeText>
         ) : (
-          <RollingNumber value={fare} format={formatGHS} variant="headline" accessibilityLabel={`Total ${formatGHS(fare)}`} />
+          <RollingNumber
+            value={fare}
+            format={formatGHS}
+            variant="headline"
+            accessibilityLabel={`Total ${formatGHS(fare)}`}
+          />
         )}
       </View>
 
@@ -84,7 +100,9 @@ export function TripResults({ route, pickup, dropoffs, options, fareRules, selec
           {options.options.map((o, i) => (
             <Animated.View
               key={o.tripId}
-              entering={i < stagger.maxItems && !reduceMotion ? FadeIn.duration(motion.base).delay(i * stagger.list) : undefined}
+              entering={
+                i < stagger.maxItems && !reduceMotion ? FadeIn.duration(motion.base).delay(i * stagger.list) : undefined
+              }
             >
               <BusCard
                 etaMinutes={o.pickupEtaMs === null ? null : Math.max(0, Math.round((o.pickupEtaMs - now) / 60_000))}

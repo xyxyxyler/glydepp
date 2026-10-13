@@ -19,7 +19,8 @@ export function useTripPlanner(network: Network | null) {
   const stopById = useMemo(() => new Map((network?.stops ?? []).map((s) => [s.id, s])), [network]);
   const dropoffIds = dropoffs.map((d) => d.choice?.stopId).filter((id): id is string => !!id);
   const complete = !!pickup && !!dropoffs[0]?.choice;
-  const route = network && pickup && dropoffs[0]?.choice ? routeFor(network, pickup.stopId, dropoffs[0].choice.stopId) : null;
+  const route =
+    network && pickup && dropoffs[0]?.choice ? routeFor(network, pickup.stopId, dropoffs[0].choice.stopId) : null;
 
   const focus = useCallback((id: FieldId) => {
     setActive(id);

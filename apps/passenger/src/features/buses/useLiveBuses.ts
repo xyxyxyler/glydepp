@@ -10,7 +10,7 @@ export type LiveBus = {
   tripId: string;
   plate: string;
   direction: Database['public']['Enums']['route_direction'];
-  position: LatLng & { heading: number | null };
+  position: LatLng & { heading: number | null; distanceM: number };
   recordedAt: string;
   /** ms between this fix and the previous one — the marker glides over this interval. */
   intervalMs: number;
@@ -65,7 +65,12 @@ export function useLiveBuses(): LiveBusesState {
         next.set(row.trip_id, {
           tripId: row.trip_id,
           ...trip,
-          position: { latitude: row.latitude, longitude: row.longitude, heading: row.heading },
+          position: {
+            latitude: row.latitude,
+            longitude: row.longitude,
+            heading: row.heading,
+            distanceM: row.distance_m,
+          },
           recordedAt: row.recorded_at,
           intervalMs: intervalBetween(prev?.recordedAt, row.recorded_at),
         });
@@ -94,7 +99,7 @@ export function useLiveBuses(): LiveBusesState {
         initial.set(t.id, {
           tripId: t.id,
           ...meta,
-          position: { latitude: p.latitude, longitude: p.longitude, heading: p.heading },
+          position: { latitude: p.latitude, longitude: p.longitude, heading: p.heading, distanceM: p.distance_m },
           recordedAt: p.recorded_at,
           intervalMs: DEFAULT_INTERVAL_MS,
         });

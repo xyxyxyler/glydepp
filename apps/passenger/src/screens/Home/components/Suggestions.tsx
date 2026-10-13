@@ -22,9 +22,7 @@ export function Suggestions({ query, candidates, recentIds, nearest, onChoose }:
   const q = query.trim().toLowerCase();
   const allowed = new Set(candidates.map((c) => c.id));
   const matches = q ? candidates.filter((s) => s.name.toLowerCase().includes(q)) : candidates;
-  const recents = q
-    ? []
-    : recentIds.map((id) => candidates.find((c) => c.id === id)).filter((s): s is Stop => !!s);
+  const recents = q ? [] : recentIds.map((id) => candidates.find((c) => c.id === id)).filter((s): s is Stop => !!s);
   const rest = matches.filter((s) => !recents.includes(s));
   const showNearest = !q && nearest && allowed.has(nearest.stop.id);
 
@@ -61,9 +59,7 @@ export function Suggestions({ query, candidates, recentIds, nearest, onChoose }:
         <Animated.View
           key={r.key}
           entering={
-            i < stagger.maxItems && !reduceMotion
-              ? FadeIn.duration(motion.base).delay(i * stagger.list)
-              : undefined
+            i < stagger.maxItems && !reduceMotion ? FadeIn.duration(motion.base).delay(i * stagger.list) : undefined
           }
         >
           {r.node}
@@ -124,7 +120,13 @@ const styles = StyleSheet.create({
     paddingVertical: space.xs,
     borderRadius: radius.md,
   },
-  icon: { width: size.tapMin - space.xs, height: size.tapMin - space.xs, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  icon: {
+    width: size.tapMin - space.xs,
+    height: size.tapMin - space.xs,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   text: { flex: 1 },
   empty: { paddingVertical: space.md },
 });
