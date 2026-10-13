@@ -1,0 +1,29 @@
+{
+  "name": "@glyde/ui",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "peerDependencies": {
+    "@gorhom/bottom-sheet": "*",
+    "expo-haptics": "*",
+    "react": "*",
+    "react-native": "*",
+    "react-native-gesture-handler": "*",
+    "react-native-maps": "*",
+    "react-native-reanimated": "*",
+    "react-native-safe-area-context": "*",
+    "react-native-svg": "*",
+    "react-native-worklets": "*"
+  },
+  "devDependencies": {
+    "expo": "*",
+    "typescript": "*",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~57.0.2"
+  }
+}
