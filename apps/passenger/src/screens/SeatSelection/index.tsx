@@ -31,6 +31,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { encodePicks } from '@/features/booking/useHold';
 import { useFareRules } from '@/features/fares/useFareRules';
 import { useNetwork, type RouteInfo } from '@/features/network/useNetwork';
 import { useSeatMap } from '@/features/seats/useSeatMap';
@@ -232,13 +233,17 @@ export function SeatSelectionScreen() {
           label="Proceed to Payment"
           disabled={!complete}
           accessibilityHint={complete ? undefined : 'Choose a seat for each passenger first'}
-          onPress={() =>
-            toast.show({
-              tone: 'info',
-              title: 'Payment is next',
-              message: 'Built in the next task.',
-            })
-          }
+          onPress={() => {
+            if (!journeys) return;
+            router.push({
+              pathname: '/payment',
+              params: {
+                tripId: params.tripId,
+                pickup: params.pickup,
+                picks: encodePicks(journeys.map((j) => ({ dropoffStopId: j.key, seatNo: effective[j.key] as number }))),
+              },
+            });
+          }}
         />
       </View>
     </View>

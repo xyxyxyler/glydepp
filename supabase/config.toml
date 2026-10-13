@@ -417,3 +417,7 @@ enabled = true
 [functions.auth-otp]
 # Called before sign-in (and the publishable key is not a JWT): the function is its own gate.
 verify_jwt = false
+
+[functions.pay]
+# Verifies the passenger token itself (works with the new publishable/secret keys).
+verify_jwt = false

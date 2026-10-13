@@ -144,6 +144,62 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount_pesewas: number
+          attempts: number
+          created_at: string
+          expires_at: string
+          failure_reason: string | null
+          id: string
+          method: string | null
+          paid_at: string | null
+          passenger_id: string
+          provider: string | null
+          provider_ref: string | null
+          status: string
+          trip_id: string
+        }
+        Insert: {
+          amount_pesewas: number
+          attempts?: number
+          created_at?: string
+          expires_at: string
+          failure_reason?: string | null
+          id?: string
+          method?: string | null
+          paid_at?: string | null
+          passenger_id: string
+          provider?: string | null
+          provider_ref?: string | null
+          status?: string
+          trip_id: string
+        }
+        Update: {
+          amount_pesewas?: number
+          attempts?: number
+          created_at?: string
+          expires_at?: string
+          failure_reason?: string | null
+          id?: string
+          method?: string | null
+          paid_at?: string | null
+          passenger_id?: string
+          provider?: string | null
+          provider_ref?: string | null
+          status?: string
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           company_name: string
@@ -325,8 +381,10 @@ export type Database = {
           created_at: string
           dropoff_idx: number
           fare_pesewas: number
+          hold_expires_at: string | null
           id: string
           passenger_id: string | null
+          payment_id: string | null
           pickup_idx: number
           seat_no: number
           status: Database["public"]["Enums"]["ticket_status"]
@@ -336,8 +394,10 @@ export type Database = {
           created_at?: string
           dropoff_idx: number
           fare_pesewas: number
+          hold_expires_at?: string | null
           id?: string
           passenger_id?: string | null
+          payment_id?: string | null
           pickup_idx: number
           seat_no: number
           status?: Database["public"]["Enums"]["ticket_status"]
@@ -347,14 +407,23 @@ export type Database = {
           created_at?: string
           dropoff_idx?: number
           fare_pesewas?: number
+          hold_expires_at?: string | null
           id?: string
           passenger_id?: string | null
+          payment_id?: string | null
           pickup_idx?: number
           seat_no?: number
           status?: Database["public"]["Enums"]["ticket_status"]
           trip_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tickets_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tickets_trip_id_fkey"
             columns: ["trip_id"]
@@ -406,11 +475,87 @@ export type Database = {
           },
         ]
       }
+      wallet_transactions: {
+        Row: {
+          amount_pesewas: number
+          created_at: string
+          id: string
+          kind: string
+          passenger_id: string
+          payment_id: string | null
+        }
+        Insert: {
+          amount_pesewas: number
+          created_at?: string
+          id?: string
+          kind: string
+          passenger_id: string
+          payment_id?: string | null
+        }
+        Update: {
+          amount_pesewas?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          passenger_id?: string
+          payment_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallets: {
+        Row: {
+          balance_pesewas: number
+          passenger_id: string
+          updated_at: string
+        }
+        Insert: {
+          balance_pesewas?: number
+          passenger_id: string
+          updated_at?: string
+        }
+        Update: {
+          balance_pesewas?: number
+          passenger_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      confirm_payment: {
+        Args: {
+          p_method: string
+          p_payment_id: string
+          p_provider: string
+          p_provider_ref: string
+        }
+        Returns: string
+      }
+      hold_seats: {
+        Args: { p_pickup_stop_id: string; p_seats: Json; p_trip_id: string }
+        Returns: Json
+      }
+      my_wallet: { Args: never; Returns: number }
+      record_payment_failure: {
+        Args: { p_method: string; p_payment_id: string; p_reason: string }
+        Returns: undefined
+      }
+      release_expired_holds: { Args: { p_trip_id: string }; Returns: undefined }
+      seat_fare_pesewas: {
+        Args: { p_distance_m: number; p_route_code: string }
+        Returns: number
+      }
       trip_can_board_at: {
         Args: { p_pickup_idx: number; p_trip_id: string }
         Returns: boolean
@@ -446,11 +591,13 @@ export type Database = {
           seat_no: number
         }[]
       }
+      wallet_test_credit_pesewas: { Args: never; Returns: number }
     }
     Enums: {
       bus_status: "active" | "standby" | "maintenance" | "inactive"
       route_direction: "inbound" | "outbound"
       ticket_status:
+        | "held"
         | "reserved"
         | "boarded"
         | "completed"
@@ -587,6 +734,7 @@ export const Constants = {
       bus_status: ["active", "standby", "maintenance", "inactive"],
       route_direction: ["inbound", "outbound"],
       ticket_status: [
+        "held",
         "reserved",
         "boarded",
         "completed",
