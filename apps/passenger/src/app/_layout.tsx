@@ -29,7 +29,11 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <ThemeProvider theme="light">
           <ToastProvider>
-            <Stack screenOptions={{ headerShown: false }} />
+            <Stack screenOptions={{ headerShown: false }}>
+              {/* Splash fades out to black; Landing fades in. Onboarding steps use the native push. */}
+              <Stack.Screen name="index" options={{ animation: 'fade' }} />
+              <Stack.Screen name="landing" options={{ animation: 'fade' }} />
+            </Stack>
           </ToastProvider>
         </ThemeProvider>
       </SafeAreaProvider>
