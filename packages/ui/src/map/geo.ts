@@ -53,3 +53,15 @@ export function slicePolyline(points: LatLng[], fraction: number): LatLng[] {
   }
   return out;
 }
+
+/** The point `fraction` (0..1) of the way along a polyline, by length. */
+export function pointAlong(points: LatLng[], fraction: number): LatLng {
+  const sliced = slicePolyline(points, Math.min(1, Math.max(0, fraction)));
+  return sliced[sliced.length - 1];
+}
+
+/** `count` points evenly spaced by distance along a polyline (first and last included). */
+export function resampleByDistance(points: LatLng[], count: number): LatLng[] {
+  if (count < 2 || points.length < 2) return points.slice();
+  return Array.from({ length: count }, (_, i) => pointAlong(points, i / (count - 1)));
+}

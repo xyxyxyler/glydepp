@@ -208,6 +208,9 @@ export const sheetSnap = { collapsed: 0.18, half: 0.5, full: 0.92 } as const;
 /** Throttle for JS-side map updates (route draw sampling, fallback marker). ~30 fps. */
 export const mapFrameInterval = 33; // [added]
 
+/** Dev-only GPS debug dot, drawn by the map itself (metres, not dp). [added] */
+export const mapDebug = { dotRadiusMeters: 12 } as const;
+
 // ─── Haptics (DESIGN.md §10) ────────────────────────────────────────────────
 
 export type HapticKind = 'light' | 'medium' | 'success' | 'warning' | 'error';

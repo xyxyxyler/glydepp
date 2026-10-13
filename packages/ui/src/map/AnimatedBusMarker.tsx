@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 import Animated, { useAnimatedProps, useAnimatedReaction, useAnimatedStyle } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -8,6 +8,7 @@ import { mapFrameInterval, motion, pulse, size } from '../../tokens';
 import { PulseRing } from '../components/PulseRing';
 import { useTheme } from '../theme';
 import { BusGlyph } from './BusGlyph';
+import type { LatLng } from './geo';
 import { useVehicleInterpolation, type VehicleFix } from './useVehicleInterpolation';
 
 const AnimatedMarker = Animated.createAnimatedComponent(Marker);
@@ -32,7 +33,15 @@ export type AnimatedBusMarkerProps = {
 };
 
 const BOX = size.busMarker * pulse.scaleTo; // room for the pulse ring at full scale
-const ANCHOR = { x: 0.5, y: 0.5 };
+const ANCHOR = { x: 0.5, y: 0.5 }; // Google Maps: centre of the view sits on the coordinate
+const CENTER_OFFSET = { x: 0, y: 0 }; // Apple Maps equivalent of ANCHOR
+
+/**
+ * The Marker `rotation` prop is Google Maps only (react-native-maps docs). On iOS with Apple
+ * Maps the marker's view is live, so we rotate the glyph view itself on the UI thread.
+ * Map rotation is disabled in GlydeMap, so screen-space rotation equals heading.
+ */
+const ROTATE_VIEW = Platform.OS === 'ios';
 
 export function AnimatedBusMarker({
   fix,
@@ -55,7 +64,11 @@ export function AnimatedBusMarker({
   }, []);
   const tracksViewChanges = entering || selected;
 
-  const glyphStyle = useAnimatedStyle(() => ({ transform: [{ scale: v.scale.get() }] }));
+  const glyphStyle = useAnimatedStyle(() => ({
+    transform: ROTATE_VIEW
+      ? [{ scale: v.scale.get() }, { rotate: `${v.heading.get()}deg` }]
+      : [{ scale: v.scale.get() }],
+  }));
 
   const body = (
     <View style={styles.box}>
@@ -71,11 +84,18 @@ export function AnimatedBusMarker({
   );
 
   // ── native driver ─────────────────────────────────────────────
-  const animatedProps = useAnimatedProps(() => ({
-    coordinate: { latitude: v.latitude.get(), longitude: v.longitude.get() },
-    rotation: v.heading.get(),
-    opacity: v.opacity.get(),
-  }));
+  const animatedProps = useAnimatedProps((): { coordinate: LatLng; opacity: number; rotation?: number } =>
+    ROTATE_VIEW
+      ? {
+          coordinate: { latitude: v.latitude.get(), longitude: v.longitude.get() },
+          opacity: v.opacity.get(),
+        }
+      : {
+          coordinate: { latitude: v.latitude.get(), longitude: v.longitude.get() },
+          rotation: v.heading.get(),
+          opacity: v.opacity.get(),
+        },
+  );
 
   // ── js driver ─────────────────────────────────────────────────
   const [jsState, setJsState] = useState({ latitude: fix.latitude, longitude: fix.longitude, rotation: 0, opacity: 0 });
@@ -107,10 +127,11 @@ export function AnimatedBusMarker({
     return (
       <Marker
         coordinate={{ latitude: jsState.latitude, longitude: jsState.longitude }}
-        rotation={jsState.rotation}
+        rotation={ROTATE_VIEW ? undefined : jsState.rotation}
         opacity={jsState.opacity}
         flat
         anchor={ANCHOR}
+        centerOffset={CENTER_OFFSET}
         tracksViewChanges={tracksViewChanges}
         accessibilityLabel={accessibilityLabel}
         onPress={onPress}
@@ -126,6 +147,7 @@ export function AnimatedBusMarker({
       animatedProps={animatedProps}
       flat
       anchor={ANCHOR}
+      centerOffset={CENTER_OFFSET}
       tracksViewChanges={tracksViewChanges}
       accessibilityLabel={accessibilityLabel}
       onPress={onPress}

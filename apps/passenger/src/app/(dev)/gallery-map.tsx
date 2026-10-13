@@ -2,6 +2,7 @@ import {
   AnimatedBusMarker,
   BottomSheet,
   GlydeMap,
+  GpsDebugDot,
   GlydeText,
   PrimaryButton,
   RouteLine,
@@ -21,14 +22,16 @@ import { useRef, useState } from 'react';
 import { StyleSheet, Switch, TextInput, View } from 'react-native';
 import Animated, { useAnimatedProps } from 'react-native-reanimated';
 
+import madinaAdenta from '@/dev/fixtures/madina-adenta.json';
 import { useFakeGps } from '@/dev/useFakeGps';
 
-// FAKE demo line in Accra. Not a Glyde route; real stops are an open question (CLAUDE.md §10).
-const LINE_FROM = { latitude: 5.5560, longitude: -0.1969 };
-const LINE_TO = { latitude: 5.6420, longitude: -0.1500 };
-const STEPS = 20;
+// FAKE demo: real road geometry (OSRM / OpenStreetMap) but not a Glyde route or stop list —
+// the Accra–Dodowa stops are an open question (CLAUDE.md §10).
+const ROUTE = madinaAdenta.coordinates;
 const TICK_MS = 2000;
-const INITIAL_REGION = { latitude: 5.599, longitude: -0.1735, latitudeDelta: 0.12, longitudeDelta: 0.12 };
+const FIX_SPACING_M = 25; // ≈ 45 km/h at one fix per 2 s
+const FIXES = Math.round(madinaAdenta.distanceMeters / FIX_SPACING_M);
+const INITIAL_REGION = { latitude: 5.695, longitude: -0.162, latitudeDelta: 0.04, longitudeDelta: 0.04 };
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
@@ -58,14 +61,24 @@ function MapDemo() {
   const [selected, setSelected] = useState(true);
   const [available, setAvailable] = useState(true);
   const [driver, setDriver] = useState<MarkerDriver>('native');
-  const [routeKey, setRouteKey] = useState(0);
+  const [routeKey, setRouteKey] = useState(1);
+  const [follow, setFollow] = useState(true);
+  const [debugDot, setDebugDot] = useState(false);
   const [snap, setSnap] = useState<SheetSnap>('collapsed');
-  const { fix, path } = useFakeGps(LINE_FROM, LINE_TO, STEPS, TICK_MS, running);
+  const { fix } = useFakeGps(ROUTE, FIXES, TICK_MS, running);
 
   return (
     <View style={styles.fill}>
-      <GlydeMap ref={map} initialRegion={INITIAL_REGION} bottomInset={settledHeight} focus={fix}>
-        {routeKey > 0 && <RouteLine coordinates={path} playKey={routeKey} onDrawn={() => map.current?.fitTo(path)} />}
+      <GlydeMap
+        ref={map}
+        initialRegion={INITIAL_REGION}
+        bottomInset={settledHeight}
+        focus={fix}
+        followFocus={follow}
+        onReady={() => map.current?.fitTo(ROUTE)}
+      >
+        <RouteLine coordinates={ROUTE} playKey={routeKey} onDrawn={() => map.current?.fitTo(ROUTE)} />
+        {debugDot && <GpsDebugDot point={fix} />}
         {/* key on driver: switching drivers remounts the marker */}
         <AnimatedBusMarker
           key={driver}
@@ -82,11 +95,13 @@ function MapDemo() {
         <View style={styles.sheet}>
           <GlydeText variant="title2">Where to?</GlydeText>
           <GlydeText variant="caption" tone="secondary">
-            Fake GPS · snap: {snap}
+            Fake GPS on a real road (Madina → Adenta) · snap: {snap}
           </GlydeText>
           <SheetReadout />
-          <PrimaryButton label="Draw route" haptic="selection" onPress={() => setRouteKey((k) => k + 1)} />
+           <PrimaryButton label="Replay route draw" haptic="selection" onPress={() => setRouteKey((k) => k + 1)} />
           <Toggle label="GPS running" value={running} onChange={setRunning} />
+          <Toggle label="Follow bus" value={follow} onChange={setFollow} />
+          <Toggle label="Show raw GPS point (debug)" value={debugDot} onChange={setDebugDot} />
           <Toggle label="Selected (pulse ring)" value={selected} onChange={setSelected} />
           <Toggle label="Available (green)" value={available} onChange={setAvailable} />
           <Toggle

@@ -23,5 +23,6 @@ export {
 export { GlydeMap, type GlydeMapHandle, type GlydeMapProps, type GlydeMapRegion } from './src/map/GlydeMap';
 export { AnimatedBusMarker, type AnimatedBusMarkerProps, type MarkerDriver } from './src/map/AnimatedBusMarker';
 export { RouteLine, type RouteLineProps } from './src/map/RouteLine';
+export { GpsDebugDot } from './src/map/GpsDebugDot';
 export { useVehicleInterpolation, type VehicleFix } from './src/map/useVehicleInterpolation';
-export { bearing, shortestArcDelta, slicePolyline, type LatLng } from './src/map/geo';
+export { bearing, pointAlong, resampleByDistance, shortestArcDelta, slicePolyline, type LatLng } from './src/map/geo';

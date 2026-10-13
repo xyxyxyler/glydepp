@@ -1,20 +1,13 @@
+import { resampleByDistance, type LatLng, type VehicleFix } from '@glyde/ui';
 import { useEffect, useMemo, useState } from 'react';
 
-import type { LatLng, VehicleFix } from '@glyde/ui';
-
 /**
- * FAKE GPS for the dev Gallery only — not a real route and not the Accra–Dodowa stop list.
- * A straight line split into `steps` points; the bus ping-pongs end to end so it never jumps.
+ * FAKE GPS for the dev Gallery only — not the Accra–Dodowa stop list.
+ * Resamples `route` into `fixes` evenly spaced points and emits one per `intervalMs`.
+ * The bus ping-pongs end to end so it never jumps.
  */
-export function useFakeGps(from: LatLng, to: LatLng, steps: number, intervalMs: number, running: boolean) {
-  const path = useMemo(
-    () =>
-      Array.from({ length: steps + 1 }, (_, i) => ({
-        latitude: from.latitude + ((to.latitude - from.latitude) * i) / steps,
-        longitude: from.longitude + ((to.longitude - from.longitude) * i) / steps,
-      })),
-    [from.latitude, from.longitude, to.latitude, to.longitude, steps],
-  );
+export function useFakeGps(route: LatLng[], fixes: number, intervalMs: number, running: boolean) {
+  const samples = useMemo(() => resampleByDistance(route, fixes), [route, fixes]);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
@@ -23,9 +16,8 @@ export function useFakeGps(from: LatLng, to: LatLng, steps: number, intervalMs: 
     return () => clearInterval(id);
   }, [intervalMs, running]);
 
-  const cycle = steps * 2;
-  const pos = tick % cycle;
-  const index = pos <= steps ? pos : cycle - pos;
-  const fix: VehicleFix = path[index];
-  return { fix, path };
+  const last = samples.length - 1;
+  const pos = tick % (last * 2);
+  const fix: VehicleFix = samples[pos <= last ? pos : last * 2 - pos];
+  return { fix };
 }
