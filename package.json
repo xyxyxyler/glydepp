@@ -20,7 +20,8 @@
     "fn:deploy": "set -a && . ./.env.local && set +a && supabase functions deploy --use-api --project-ref \"$SUPABASE_PROJECT_REF\"",
     "db:seed": "set -a && . ./.env.local && set +a && PGPASSWORD=\"$SUPABASE_DB_PASSWORD\" psql \"$(cat supabase/.temp/pooler-url)\" -q -v ON_ERROR_STOP=1 -f supabase/seed.sql",
     "test:payments": "node scripts/test-payments.ts",
-    "dev:trips": "node scripts/dev-trips.ts"
+    "dev:trips": "node scripts/dev-trips.ts",
+    "seed:driver": "node scripts/seed-test-driver.ts"
   },
   "devDependencies": {
     "supabase": "^2.120.0"

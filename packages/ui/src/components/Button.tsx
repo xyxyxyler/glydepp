@@ -19,9 +19,21 @@ type BaseButtonProps = {
   haptic?: HapticMoment | null;
   accessibilityHint?: string;
   style?: StyleProp<ViewStyle>;
+  /** 'driver': 64dp tall for the tablet-first Driver app (DESIGN.md §5). */
+  size?: 'default' | 'driver';
 };
 
-function BaseButton({ label, onPress, disabled, loading, haptic = 'confirm', accessibilityHint, style, colors }: BaseButtonProps & { colors: Colors }) {
+function BaseButton({
+  label,
+  onPress,
+  disabled,
+  loading,
+  haptic = 'confirm',
+  accessibilityHint,
+  style,
+  size: variant = 'default',
+  colors,
+}: BaseButtonProps & { colors: Colors }) {
   const theme = useTheme().colors;
   const inactive = disabled || loading;
   const { pressed, style: scaleStyle, onPressIn, onPressOut } = usePressScale(inactive);
@@ -49,7 +61,7 @@ function BaseButton({ label, onPress, disabled, loading, haptic = 'confirm', acc
       }}
       style={style}
     >
-      <Animated.View style={[styles.base, fillStyle, scaleStyle]}>
+      <Animated.View style={[styles.base, variant === 'driver' && styles.driver, fillStyle, scaleStyle]}>
         {loading ? (
           <ActivityIndicator color={ink} />
         ) : (
@@ -89,4 +101,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  driver: { height: size.driverTap },
 });

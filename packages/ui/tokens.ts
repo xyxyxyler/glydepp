@@ -147,6 +147,9 @@ export const size = {
   routeStroke: 5,
   ticketNotch: 24, // semicircle cut-outs on the ticket stub (DESIGN.md §7) [added]
   qr: 216, // QR on the ticket card [added]
+  logoSmall: 32, // app headers [added]
+  logoMedium: 56, // login [added]
+  avatar: 40, // [added]
   alertIcon: 36, // pale status circle in toasts/banners
   glassBlur: 80, // BlurView intensity (1–100)
   statusDot: 8,
@@ -232,6 +235,13 @@ export const gesture = { dismissVelocity: 500, dismissFraction: 1 / 3 } as const
 /** Opacity for controls that can't be used yet (with a spoken reason). [added] */
 export const disabledOpacity = 0.4;
 export const ticket = { riseFrom: 0.96 } as const; // §8.7 ticket rises 0.96 → 1
+/** Responsive layout (Driver app is tablet-first, DESIGN.md §5). [added] */
+export const layout = {
+  formMaxWidth: 480, // forms don't stretch across a tablet
+  twoColumnMin: 600, // width at which dashboards show 2 card columns
+  threeColumnMin: 960, // … and 3
+} as const;
+
 export const contentEnter = { translateY: 12 } as const; // §8.1 sheet content
 
 /** Bottom sheet snap points as fraction of screen height (DESIGN.md §7). */

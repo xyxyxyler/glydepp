@@ -84,6 +84,33 @@ export type Database = {
           },
         ]
       }
+      drivers: {
+        Row: {
+          created_at: string
+          first_name: string
+          id: string
+          last_name: string
+          status: Database["public"]["Enums"]["driver_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          first_name: string
+          id: string
+          last_name: string
+          status?: Database["public"]["Enums"]["driver_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          status?: Database["public"]["Enums"]["driver_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       fare_rules: {
         Row: {
           active: boolean
@@ -636,6 +663,7 @@ export type Database = {
     }
     Enums: {
       bus_status: "active" | "standby" | "maintenance" | "inactive"
+      driver_status: "pending" | "approved" | "rejected"
       route_direction: "inbound" | "outbound"
       ticket_status:
         | "held"
@@ -773,6 +801,7 @@ export const Constants = {
   public: {
     Enums: {
       bus_status: ["active", "standby", "maintenance", "inactive"],
+      driver_status: ["pending", "approved", "rejected"],
       route_direction: ["inbound", "outbound"],
       ticket_status: [
         "held",

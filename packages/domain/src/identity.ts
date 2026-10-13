@@ -23,3 +23,11 @@ export function normaliseEmail(input: string): string | null {
 }
 
 export const OTP_LENGTH = 6;
+
+/**
+ * Internal sign-in address for phone accounts (the reserved .invalid TLD — never deliverable).
+ * Same scheme as supabase/functions/auth-otp and scripts/seed-test-driver.ts: keep identical.
+ */
+export function internalEmailForPhone(e164: string): string {
+  return `phone-${e164.replace(/^\+/, '')}@users.glyde.invalid`;
+}

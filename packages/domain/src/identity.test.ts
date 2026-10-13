@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { formatGhanaPhone, normaliseEmail, normaliseGhanaPhone } from './identity.ts';
+import { formatGhanaPhone, internalEmailForPhone, normaliseEmail, normaliseGhanaPhone } from './identity.ts';
 
 describe('normaliseGhanaPhone', () => {
   it('accepts the ways people type Ghana mobiles', () => {
@@ -24,4 +24,9 @@ describe('formatGhanaPhone', () => {
 describe('normaliseEmail', () => {
   it('lower-cases and trims', () => assert.equal(normaliseEmail('  Ama@Example.COM '), 'ama@example.com'));
   it('rejects malformed', () => assert.equal(normaliseEmail('ama@'), null));
+});
+
+describe('internalEmailForPhone', () => {
+  it('matches the auth-otp scheme', () =>
+    assert.equal(internalEmailForPhone('+233200000099'), 'phone-233200000099@users.glyde.invalid'));
 });
