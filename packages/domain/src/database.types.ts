@@ -1,0 +1,471 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.18"
+  }
+  public: {
+    Tables: {
+      bus_positions: {
+        Row: {
+          distance_m: number
+          heading: number | null
+          latitude: number
+          longitude: number
+          recorded_at: string
+          speed_mps: number | null
+          trip_id: string
+        }
+        Insert: {
+          distance_m: number
+          heading?: number | null
+          latitude: number
+          longitude: number
+          recorded_at?: string
+          speed_mps?: number | null
+          trip_id: string
+        }
+        Update: {
+          distance_m?: number
+          heading?: number | null
+          latitude?: number
+          longitude?: number
+          recorded_at?: string
+          speed_mps?: number | null
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bus_positions_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: true
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      buses: {
+        Row: {
+          created_at: string
+          id: string
+          layout_id: string
+          plate: string
+          status: Database["public"]["Enums"]["bus_status"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          layout_id: string
+          plate: string
+          status?: Database["public"]["Enums"]["bus_status"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          layout_id?: string
+          plate?: string
+          status?: Database["public"]["Enums"]["bus_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buses_layout_id_fkey"
+            columns: ["layout_id"]
+            isOneToOne: false
+            referencedRelation: "seat_layouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      route_paths: {
+        Row: {
+          path: Json
+          route_id: string
+        }
+        Insert: {
+          path: Json
+          route_id: string
+        }
+        Update: {
+          path?: Json
+          route_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "route_paths_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: true
+            referencedRelation: "routes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      route_stops: {
+        Row: {
+          distance_m: number
+          route_id: string
+          stop_id: string
+          stop_idx: number
+        }
+        Insert: {
+          distance_m: number
+          route_id: string
+          stop_id: string
+          stop_idx: number
+        }
+        Update: {
+          distance_m?: number
+          route_id?: string
+          stop_id?: string
+          stop_idx?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "route_stops_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: false
+            referencedRelation: "routes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "route_stops_stop_id_fkey"
+            columns: ["stop_id"]
+            isOneToOne: false
+            referencedRelation: "stops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      routes: {
+        Row: {
+          code: string
+          created_at: string
+          direction: Database["public"]["Enums"]["route_direction"]
+          id: string
+          length_m: number
+          name: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          direction: Database["public"]["Enums"]["route_direction"]
+          id?: string
+          length_m: number
+          name: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          direction?: Database["public"]["Enums"]["route_direction"]
+          id?: string
+          length_m?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      seat_layouts: {
+        Row: {
+          grid: Json
+          id: string
+          name: string
+          seat_count: number
+        }
+        Insert: {
+          grid: Json
+          id?: string
+          name: string
+          seat_count: number
+        }
+        Update: {
+          grid?: Json
+          id?: string
+          name?: string
+          seat_count?: number
+        }
+        Relationships: []
+      }
+      stops: {
+        Row: {
+          created_at: string
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          latitude: number
+          longitude: number
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      tickets: {
+        Row: {
+          created_at: string
+          dropoff_idx: number
+          fare_pesewas: number
+          id: string
+          passenger_id: string | null
+          pickup_idx: number
+          seat_no: number
+          status: Database["public"]["Enums"]["ticket_status"]
+          trip_id: string
+        }
+        Insert: {
+          created_at?: string
+          dropoff_idx: number
+          fare_pesewas: number
+          id?: string
+          passenger_id?: string | null
+          pickup_idx: number
+          seat_no: number
+          status?: Database["public"]["Enums"]["ticket_status"]
+          trip_id: string
+        }
+        Update: {
+          created_at?: string
+          dropoff_idx?: number
+          fare_pesewas?: number
+          id?: string
+          passenger_id?: string | null
+          pickup_idx?: number
+          seat_no?: number
+          status?: Database["public"]["Enums"]["ticket_status"]
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trips: {
+        Row: {
+          bus_id: string
+          created_at: string
+          departs_at: string
+          id: string
+          route_id: string
+          status: Database["public"]["Enums"]["trip_status"]
+        }
+        Insert: {
+          bus_id: string
+          created_at?: string
+          departs_at: string
+          id?: string
+          route_id: string
+          status?: Database["public"]["Enums"]["trip_status"]
+        }
+        Update: {
+          bus_id?: string
+          created_at?: string
+          departs_at?: string
+          id?: string
+          route_id?: string
+          status?: Database["public"]["Enums"]["trip_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trips_bus_id_fkey"
+            columns: ["bus_id"]
+            isOneToOne: false
+            referencedRelation: "buses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trips_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: false
+            referencedRelation: "routes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      trip_can_board_at: {
+        Args: { p_pickup_idx: number; p_trip_id: string }
+        Returns: boolean
+      }
+      trip_seat_segments: {
+        Args: { p_trip_id: string }
+        Returns: {
+          dropoff_idx: number
+          pickup_idx: number
+          seat_no: number
+        }[]
+      }
+    }
+    Enums: {
+      bus_status: "active" | "standby" | "maintenance" | "inactive"
+      route_direction: "inbound" | "outbound"
+      ticket_status:
+        | "reserved"
+        | "boarded"
+        | "completed"
+        | "absent"
+        | "cancelled"
+      trip_status: "scheduled" | "active" | "completed" | "cancelled"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never) = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      bus_status: ["active", "standby", "maintenance", "inactive"],
+      route_direction: ["inbound", "outbound"],
+      ticket_status: [
+        "reserved",
+        "boarded",
+        "completed",
+        "absent",
+        "cancelled",
+      ],
+      trip_status: ["scheduled", "active", "completed", "cancelled"],
+    },
+  },
+} as const

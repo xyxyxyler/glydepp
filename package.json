@@ -7,7 +7,20 @@
   ],
   "scripts": {
     "start": "npm --workspace @glyde/passenger run start",
-    "typecheck": "npm --workspaces --if-present run typecheck",
-    "lint": "npm --workspaces --if-present run lint"
+    "typecheck": "npm --workspaces --if-present run typecheck && tsc -p scripts",
+    "lint": "npm --workspaces --if-present run lint && eslint -c scripts/eslint.config.cjs scripts",
+    "test": "npm --workspaces --if-present run test",
+    "db:push": "set -a && . ./.env.local && set +a && supabase db push --linked -p \"$SUPABASE_DB_PASSWORD\"",
+    "db:seed:build": "node scripts/build-seed.ts",
+    "db:test": "node scripts/db-test.ts",
+    "db:types": "set -a && . ./.env.local && set +a && supabase gen types typescript --linked --schema public > packages/domain/src/database.types.ts",
+    "gps:replay": "node scripts/gps-replay.ts",
+    "gps:watch": "node scripts/watch-positions.ts"
+  },
+  "devDependencies": {
+    "supabase": "^2.120.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.3"
   }
 }
