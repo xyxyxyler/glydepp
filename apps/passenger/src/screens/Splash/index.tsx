@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Image, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { useOnboardingStatus } from '@/features/onboarding/useOnboardingStatus';
+import { ONBOARDING_ROUTE, useOnboardingStatus } from '@/features/onboarding/useOnboardingStatus';
 
 import { useSplashExit } from './hooks/useSplashExit';
 
@@ -18,8 +18,9 @@ const LOGO_HEIGHT = splash.logoWidth / splash.logoAspect;
 export function SplashScreen() {
   const status = useOnboardingStatus();
   const { logoStyle, exiting } = useSplashExit(status !== 'loading', () => {
-    // Onboarded users skip onboarding (uix-spec 2.1 note). Active-trip restore comes with booking.
-    router.replace(status === 'onboarded' ? '/home' : status === 'signed-in' ? '/profile' : '/landing');
+    // Onboarded users skip onboarding; an interrupted onboarding resumes where it stopped (uix-spec 2.1).
+    // Active-trip restore comes with booking.
+    if (status !== 'loading') router.replace(ONBOARDING_ROUTE[status]);
   });
 
   return (

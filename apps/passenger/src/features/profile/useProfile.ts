@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { useSession } from '@/features/auth/useSession';
 import { supabase } from '@/lib/supabase';
 
+import { markOnboardedLocally } from './onboardedFlag';
+
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type ProfileFields = Pick<
   Profile,
@@ -79,11 +81,26 @@ export function useProfile() {
     [userId],
   );
 
+  /** Onboarding finished (Permissions done): never show onboarding again (uix-spec 2.1 note). */
+  const completeOnboarding = useCallback(async (): Promise<'ok' | 'offline' | 'error'> => {
+    if (!userId) return 'error';
+    markOnboardedLocally(userId); // works offline; the server copy follows
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ onboarded_at: new Date().toISOString() })
+      .eq('id', userId)
+      .select('*')
+      .single();
+    if (error) return /fetch|network/i.test(error.message) ? 'offline' : 'error';
+    setLoaded({ userId, profile: data, loadFailed: false });
+    return 'ok';
+  }, [userId]);
+
   let state: ProfileState;
   if (session.status === 'loading') state = { status: 'loading' };
   else if (!userId) state = { status: 'signed-out' };
   else if (!loaded || loaded.userId !== userId) state = { status: 'loading' };
   else state = { status: 'ready', ...loaded };
 
-  return { state, save, acceptTerms };
+  return { state, save, acceptTerms, completeOnboarding };
 }

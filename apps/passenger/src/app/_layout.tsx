@@ -35,7 +35,7 @@ export default function RootLayout() {
               <Stack.Screen name="landing" options={{ animation: 'fade' }} />
               {/* Signed in: no way back into the code screen. */}
               <Stack.Screen name="profile" options={{ animation: 'fade', gestureEnabled: false }} />
-              <Stack.Screen name="home" options={{ animation: 'fade' }} />
+              <Stack.Screen name="home" options={{ animation: 'fade', gestureEnabled: false }} />
               {/* Short push from Home's results (DESIGN.md §8.5). */}
               <Stack.Screen name="seats" options={{ animation: 'slide_from_right' }} />
             </Stack>
