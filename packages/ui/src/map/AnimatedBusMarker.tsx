@@ -71,7 +71,9 @@ export function AnimatedBusMarker({
   }));
 
   const body = (
-    <View style={styles.box}>
+    // collapsable={false}: without it Fabric flattens this layout-only box, the marker sizes
+    // itself from the 40pt child instead, and the bus renders off-centre from its coordinate.
+    <View collapsable={false} style={styles.box}>
       <PulseRing size={size.busMarker} active={selected} style={styles.centered} />
       <Animated.View style={[styles.centered, glyphStyle]}>
         <BusGlyph
