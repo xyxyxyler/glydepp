@@ -44,6 +44,12 @@ export function useTripPlanner(network: Network | null) {
     [active],
   );
 
+  /** Stop editing (e.g. the sheet was minimised): fields show their chosen stops again. */
+  const blur = useCallback(() => {
+    setActive(null);
+    setQuery('');
+  }, []);
+
   /** Default pickup = nearest stop to the device ('Current location'), if nothing chosen yet. */
   const defaultPickup = useCallback((stop: Stop) => {
     setPickup((p) => p ?? { stopId: stop.id, viaCurrentLocation: true });
@@ -94,6 +100,7 @@ export function useTripPlanner(network: Network | null) {
     stopById,
     candidates,
     focus,
+    blur,
     choose,
     defaultPickup,
     addStop,

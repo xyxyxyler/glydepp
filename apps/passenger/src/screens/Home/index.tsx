@@ -125,7 +125,15 @@ function HomeContent() {
 
       <HomeStatus buses={buses} permission={permission} onOpenSettings={openSettings} />
 
-      <BottomSheet ref={sheet} scrollable={planning} onSnapChange={setSnap} accessibilityLabel="Trip planner">
+      <BottomSheet
+        ref={sheet}
+        scrollable={planning}
+        onSnapChange={(next) => {
+          setSnap(next);
+          if (next !== 'full') planner.blur(); // minimised: stop editing (keyboard already closed)
+        }}
+        accessibilityLabel="Trip planner"
+      >
         {!planning ? (
           <IdleSheet snap={snap} onWhereTo={startPlanning} />
         ) : networkError ? (
@@ -139,6 +147,9 @@ function HomeContent() {
             nearest={nearest}
             recentIds={recent}
             onChosen={(id) => remember(id)}
+            onEditStart={() => {
+              if (snap !== 'full') sheet.current?.snapTo('full');
+            }}
           >
             {showResults && pickupStop && dropoffStops.length > 0 && (
               <TripResults

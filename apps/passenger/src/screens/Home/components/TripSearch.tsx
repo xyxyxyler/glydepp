@@ -12,12 +12,14 @@ type Props = {
   nearest: NearestStop | null;
   recentIds: string[];
   onChosen: (stopId: string) => void;
+  /** A field started editing: the sheet should be full so the keyboard doesn't cover it. */
+  onEditStart: () => void;
   /** Rendered under the inputs when no field is being edited (results). */
   children?: ReactNode;
 };
 
 /** uix-spec 2.3 Trip Search: pickup + drop-off(s) with '+', suggestions while a field is active. */
-export function TripSearch({ planner, nearest, recentIds, onChosen, children }: Props) {
+export function TripSearch({ planner, nearest, recentIds, onChosen, onEditStart, children }: Props) {
   const name = (id: string | undefined) => (id ? (planner.stopById.get(id)?.name ?? '') : '');
 
   const fields: LocationField[] = [
@@ -51,7 +53,10 @@ export function TripSearch({ planner, nearest, recentIds, onChosen, children }: 
       <LocationInput
         fields={fields}
         activeId={planner.active}
-        onFocusField={(id) => planner.focus(id as FieldId)}
+        onFocusField={(id) => {
+          if (planner.active !== id) planner.focus(id as FieldId);
+          onEditStart();
+        }}
         onChangeText={(_, t) => planner.setQuery(t)}
         onAddStop={planner.addStop}
         onRemoveStop={(id) => planner.removeStop(id as FieldId)}

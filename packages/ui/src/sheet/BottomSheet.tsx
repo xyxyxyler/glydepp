@@ -1,6 +1,6 @@
 import GorhomBottomSheet, { BottomSheetScrollView, BottomSheetView, useBottomSheetSpringConfigs } from '@gorhom/bottom-sheet';
 import { createContext, useCallback, useContext, useEffect, useImperativeHandle, useMemo, useRef, type ReactNode, type Ref } from 'react';
-import { BackHandler, StyleSheet, View } from 'react-native';
+import { BackHandler, Keyboard, StyleSheet, View } from 'react-native';
 import { useAnimatedReaction, useDerivedValue, useSharedValue, type SharedValue } from 'react-native-reanimated';
 
 import { elevation, radius, sheetSnap, size, space, spring } from '../../tokens';
@@ -137,12 +137,20 @@ export function BottomSheet({
       animationConfigs={animationConfigs}
       animatedPosition={position}
       onChange={handleChange}
+      // Moving down (minimising) closes the keyboard as soon as the move starts.
+      onAnimate={(from, to) => {
+        if (to < from) Keyboard.dismiss();
+      }}
       backgroundStyle={[styles.background, { backgroundColor: colors.bg.sheet }]}
       handleIndicatorStyle={[styles.grabber, { backgroundColor: colors.border.default }]}
       accessibilityLabel={accessibilityLabel}
     >
       {scrollable ? (
-        <BottomSheetScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <BottomSheetScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+        >
           {children}
         </BottomSheetScrollView>
       ) : (
