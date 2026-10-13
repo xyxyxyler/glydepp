@@ -5,6 +5,7 @@ import {
   type SeatCell,
   LocationInput,
   OtpInput,
+  TextField,
   CheckDraw,
   formatGHS,
   GlydeText,
@@ -87,6 +88,7 @@ function GalleryBody({ theme, onToggleTheme }: { theme: ThemeName; onToggleTheme
   const [extraStop, setExtraStop] = useState(false);
   const [gallerySeat, setGallerySeat] = useState<number | null>(4);
   const [otp, setOtp] = useState('');
+  const [fieldText, setFieldText] = useState('');
   const [otpError, setOtpError] = useState(0);
 
   const toastSamples: Record<ToastTone, { title: string; message: string }> = {
@@ -261,6 +263,16 @@ function GalleryBody({ theme, onToggleTheme }: { theme: ThemeName; onToggleTheme
         <GlydeText variant="caption" tone="secondary">
           Sample numbers only — not Glyde fares.
         </GlydeText>
+      </Section>
+
+      <Section title="TextField">
+        <TextField label="First name" placeholder="Ama" value={fieldText} onChangeText={setFieldText} />
+        <TextField
+          label="Company"
+          placeholder="e.g. Ministry of Finance"
+          value=""
+          error="Name of company is required"
+        />
       </Section>
 
       <Section title="OtpInput">

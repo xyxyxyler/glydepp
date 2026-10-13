@@ -117,6 +117,66 @@ export type Database = {
         }
         Relationships: []
       }
+      otp_requests: {
+        Row: {
+          attempts: number
+          channel: string
+          identifier: string
+          requested_at: string
+        }
+        Insert: {
+          attempts?: number
+          channel: string
+          identifier: string
+          requested_at?: string
+        }
+        Update: {
+          attempts?: number
+          channel?: string
+          identifier?: string
+          requested_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          company_name: string
+          created_at: string
+          first_name: string
+          id: string
+          last_name: string
+          onboarded_at: string | null
+          residential_area: string
+          terms_accepted_at: string | null
+          updated_at: string
+          work_location: string
+        }
+        Insert: {
+          company_name: string
+          created_at?: string
+          first_name: string
+          id: string
+          last_name: string
+          onboarded_at?: string | null
+          residential_area: string
+          terms_accepted_at?: string | null
+          updated_at?: string
+          work_location: string
+        }
+        Update: {
+          company_name?: string
+          created_at?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          onboarded_at?: string | null
+          residential_area?: string
+          terms_accepted_at?: string | null
+          updated_at?: string
+          work_location?: string
+        }
+        Relationships: []
+      }
       route_paths: {
         Row: {
           path: Json

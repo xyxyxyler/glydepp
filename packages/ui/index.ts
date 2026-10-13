@@ -17,6 +17,7 @@ export { LocationInput, type LocationField, type LocationInputProps } from './sr
 export { BusCard, type BusCardProps } from './src/components/BusCard';
 export { SeatGrid, type SeatCell, type SeatGridProps, type SeatVisualState } from './src/components/SeatGrid';
 export { OtpInput, type OtpInputProps } from './src/components/OtpInput';
+export { TextField, type TextFieldProps } from './src/components/TextField';
 
 export {
   BottomSheet,
