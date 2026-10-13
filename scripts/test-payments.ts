@@ -95,6 +95,16 @@ try {
   assert.equal(t1!.status, 'reserved');
   ok('retry with MoMo succeeds and the ticket is reserved');
 
+  const { data: paid } = await client.from('tickets').select('id, ticket_code, qr_token').eq('payment_id', h1.payment_id).single();
+  assert.match(paid!.ticket_code, /^GLY-[23456789ABCDEFGHJKMNPQRSTVWXYZ]{6}$/);
+  const { data: shareToken, error: shareError } = await client.rpc('share_ticket', { p_ticket_id: paid!.id });
+  if (shareError) throw shareError;
+  const stranger = createClient<Database>(url, publishable, { auth: { persistSession: false } });
+  const { data: shared } = await stranger.rpc('shared_ticket', { p_token: shareToken as string });
+  assert.equal((shared as { state: string }).state, 'valid');
+  assert.equal((shared as { qr_token: string }).qr_token, paid!.qr_token);
+  ok(`paid ticket ${paid!.ticket_code} has a QR, and its share link opens for someone else`);
+
   const h2 = await hold(2);
   r = await fn('pay', { payment_id: h2.payment_id, method: 'card', details: { testOutcome: 'decline' } }, token);
   assert.equal(r.status, 'failed');

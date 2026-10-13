@@ -376,6 +376,38 @@ export type Database = {
         }
         Relationships: []
       }
+      ticket_shares: {
+        Row: {
+          created_at: string
+          created_by: string
+          expires_at: string
+          ticket_id: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          expires_at: string
+          ticket_id: string
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          expires_at?: string
+          ticket_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_shares_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: true
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tickets: {
         Row: {
           created_at: string
@@ -386,8 +418,10 @@ export type Database = {
           passenger_id: string | null
           payment_id: string | null
           pickup_idx: number
+          qr_token: string
           seat_no: number
           status: Database["public"]["Enums"]["ticket_status"]
+          ticket_code: string
           trip_id: string
         }
         Insert: {
@@ -399,8 +433,10 @@ export type Database = {
           passenger_id?: string | null
           payment_id?: string | null
           pickup_idx: number
+          qr_token?: string
           seat_no: number
           status?: Database["public"]["Enums"]["ticket_status"]
+          ticket_code?: string
           trip_id: string
         }
         Update: {
@@ -412,8 +448,10 @@ export type Database = {
           passenger_id?: string | null
           payment_id?: string | null
           pickup_idx?: number
+          qr_token?: string
           seat_no?: number
           status?: Database["public"]["Enums"]["ticket_status"]
+          ticket_code?: string
           trip_id?: string
         }
         Relationships: [
@@ -547,6 +585,7 @@ export type Database = {
         Returns: Json
       }
       my_wallet: { Args: never; Returns: number }
+      new_ticket_code: { Args: never; Returns: string }
       record_payment_failure: {
         Args: { p_method: string; p_payment_id: string; p_reason: string }
         Returns: undefined
@@ -556,6 +595,8 @@ export type Database = {
         Args: { p_distance_m: number; p_route_code: string }
         Returns: number
       }
+      share_ticket: { Args: { p_ticket_id: string }; Returns: string }
+      shared_ticket: { Args: { p_token: string }; Returns: Json }
       trip_can_board_at: {
         Args: { p_pickup_idx: number; p_trip_id: string }
         Returns: boolean

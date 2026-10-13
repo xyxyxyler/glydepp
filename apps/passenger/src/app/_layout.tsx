@@ -38,6 +38,11 @@ export default function RootLayout() {
               <Stack.Screen name="home" options={{ animation: 'fade', gestureEnabled: false }} />
               {/* Short push from Home's results (DESIGN.md §8.5). */}
               <Stack.Screen name="seats" options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="payment" options={{ animation: 'slide_from_right' }} />
+              {/* Paid: no swiping back into the payment form. */}
+              <Stack.Screen name="payment-success" options={{ animation: 'fade', gestureEnabled: false }} />
+              <Stack.Screen name="ticket" options={{ animation: 'fade' }} />
+              <Stack.Screen name="share/[token]" options={{ animation: 'fade' }} />
             </Stack>
           </ToastProvider>
         </ThemeProvider>

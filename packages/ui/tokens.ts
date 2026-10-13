@@ -145,6 +145,8 @@ export const size = {
   checkDraw: 72,
   checkStroke: 4,
   routeStroke: 5,
+  ticketNotch: 24, // semicircle cut-outs on the ticket stub (DESIGN.md §7) [added]
+  qr: 216, // QR on the ticket card [added]
   alertIcon: 36, // pale status circle in toasts/banners
   glassBlur: 80, // BlurView intensity (1–100)
   statusDot: 8,
@@ -229,6 +231,7 @@ export const splash = {
 export const gesture = { dismissVelocity: 500, dismissFraction: 1 / 3 } as const;
 /** Opacity for controls that can't be used yet (with a spoken reason). [added] */
 export const disabledOpacity = 0.4;
+export const ticket = { riseFrom: 0.96 } as const; // §8.7 ticket rises 0.96 → 1
 export const contentEnter = { translateY: 12 } as const; // §8.1 sheet content
 
 /** Bottom sheet snap points as fraction of screen height (DESIGN.md §7). */

@@ -6,6 +6,7 @@ import {
   LocationInput,
   OtpInput,
   TextField,
+  TicketCard,
   CheckDraw,
   formatGHS,
   GlydeText,
@@ -25,6 +26,7 @@ import {
   type ToastTone,
 } from '@glyde/ui';
 import { router } from 'expo-router';
+import QRCode from 'react-native-qrcode-svg';
 import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
@@ -263,6 +265,23 @@ function GalleryBody({ theme, onToggleTheme }: { theme: ThemeName; onToggleTheme
         <GlydeText variant="caption" tone="secondary">
           Sample numbers only — not Glyde fares.
         </GlydeText>
+      </Section>
+
+      <Section title="TicketCard">
+        <TicketCard
+          title="Madina → Ridge"
+          subtitle="Boarding ~07:12 (estimate)"
+          qr={<QRCode value="GLYDE1:gallery-sample-not-a-real-ticket" size={size.qr} />}
+          ticketCode="GLY-7K3QX9"
+          qrHint="Sample only — not a real ticket"
+          details={[
+            { label: 'Bus', value: 'GLYDE-TEST-02' },
+            { label: 'Seat', value: '5' },
+            { label: 'Pickup', value: 'Madina' },
+            { label: 'Drop-off', value: 'Ridge' },
+          ]}
+          backdrop={colors.bg.base}
+        />
       </Section>
 
       <Section title="TextField">

@@ -21,6 +21,7 @@ export { OtpInput, type OtpInputProps } from './src/components/OtpInput';
 export { TextField, type TextFieldProps } from './src/components/TextField';
 export { Checkbox, type CheckboxProps } from './src/components/Checkbox';
 export { RadioCard, type RadioCardProps } from './src/components/RadioCard';
+export { TicketCard, type TicketCardProps, type TicketDetail } from './src/components/TicketCard';
 
 export {
   BottomSheet,
