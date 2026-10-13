@@ -33,3 +33,16 @@ export function availableSeats(seatCount: number, wanted: Segment, taken: readon
   if (!isValidSegment(wanted)) return [];
   return Array.from({ length: seatCount }, (_, i) => i + 1).filter((n) => isSeatAvailable(n, wanted, taken));
 }
+
+/** Card warnings (uix-spec 2.3). Thresholds approved 2026-10-13. */
+export const LAST_SEATS_THRESHOLD = 3;
+export const ALMOST_FULL_THRESHOLD = 7;
+
+export type SeatWarning = 'last-seats' | 'almost-full' | null;
+
+export function seatWarning(seatsFree: number): SeatWarning {
+  if (seatsFree <= 0) return null; // full buses are not offered at all
+  if (seatsFree <= LAST_SEATS_THRESHOLD) return 'last-seats';
+  if (seatsFree <= ALMOST_FULL_THRESHOLD) return 'almost-full';
+  return null;
+}

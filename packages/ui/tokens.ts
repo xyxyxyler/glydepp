@@ -136,6 +136,11 @@ export const size = {
   routeStroke: 5,
   toastAccent: 4,
   statusDot: 8,
+  iconStroke: 2, // DESIGN.md §6: outline icons, 2px stroke
+  locationRow: 48,
+  locationMarker: 10,
+  connectorDot: 3,
+  busCardIcon: 44,
 } as const;
 
 export const elevation = {

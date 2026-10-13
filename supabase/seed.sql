@@ -19,9 +19,10 @@ insert into public.stops (name, latitude, longitude) values
   ('Dodowa', 5.879861, -0.104632)
 on conflict (name) do update set latitude = excluded.latitude, longitude = excluded.longitude;
 
-insert into public.routes (code, name, direction, length_m)
-values ('ACC-DOD', 'Accra – Dodowa', 'outbound', 42039)
-on conflict (code, direction) do update set name = excluded.name, length_m = excluded.length_m;
+insert into public.routes (code, name, direction, length_m, free_flow_s)
+values ('ACC-DOD', 'Accra – Dodowa', 'outbound', 42039, 3826)
+on conflict (code, direction) do update
+  set name = excluded.name, length_m = excluded.length_m, free_flow_s = excluded.free_flow_s;
 
 insert into public.route_stops (route_id, stop_idx, stop_id, distance_m)
 select r.id, v.idx, s.id, v.distance_m
@@ -51,9 +52,10 @@ select r.id, '[{"latitude":5.551656,"longitude":-0.19887},{"latitude":5.551292,"
 from public.routes r where r.code = 'ACC-DOD' and r.direction = 'outbound'
 on conflict (route_id) do update set path = excluded.path;
 
-insert into public.routes (code, name, direction, length_m)
-values ('ACC-DOD', 'Dodowa – Accra', 'inbound', 42039)
-on conflict (code, direction) do update set name = excluded.name, length_m = excluded.length_m;
+insert into public.routes (code, name, direction, length_m, free_flow_s)
+values ('ACC-DOD', 'Dodowa – Accra', 'inbound', 42039, 3826)
+on conflict (code, direction) do update
+  set name = excluded.name, length_m = excluded.length_m, free_flow_s = excluded.free_flow_s;
 
 insert into public.route_stops (route_id, stop_idx, stop_id, distance_m)
 select r.id, v.idx, s.id, v.distance_m

@@ -84,6 +84,39 @@ export type Database = {
           },
         ]
       }
+      fare_rules: {
+        Row: {
+          active: boolean
+          booking_fee_pesewas: number
+          created_at: string
+          id: string
+          peak_multiplier: number
+          per_km_pesewas: number
+          platform_fee_bps: number
+          route_code: string
+        }
+        Insert: {
+          active?: boolean
+          booking_fee_pesewas: number
+          created_at?: string
+          id?: string
+          peak_multiplier?: number
+          per_km_pesewas: number
+          platform_fee_bps: number
+          route_code: string
+        }
+        Update: {
+          active?: boolean
+          booking_fee_pesewas?: number
+          created_at?: string
+          id?: string
+          peak_multiplier?: number
+          per_km_pesewas?: number
+          platform_fee_bps?: number
+          route_code?: string
+        }
+        Relationships: []
+      }
       route_paths: {
         Row: {
           path: Json
@@ -148,6 +181,7 @@ export type Database = {
           code: string
           created_at: string
           direction: Database["public"]["Enums"]["route_direction"]
+          free_flow_s: number | null
           id: string
           length_m: number
           name: string
@@ -156,6 +190,7 @@ export type Database = {
           code: string
           created_at?: string
           direction: Database["public"]["Enums"]["route_direction"]
+          free_flow_s?: number | null
           id?: string
           length_m: number
           name: string
@@ -164,6 +199,7 @@ export type Database = {
           code?: string
           created_at?: string
           direction?: Database["public"]["Enums"]["route_direction"]
+          free_flow_s?: number | null
           id?: string
           length_m?: number
           name?: string
@@ -309,6 +345,29 @@ export type Database = {
       trip_can_board_at: {
         Args: { p_pickup_idx: number; p_trip_id: string }
         Returns: boolean
+      }
+      trip_options: {
+        Args: { p_dropoff_stop_id: string; p_pickup_stop_id: string }
+        Returns: {
+          bus_distance_m: number
+          bus_recorded_at: string
+          departs_at: string
+          direction: Database["public"]["Enums"]["route_direction"]
+          dropoff_distance_m: number
+          dropoff_idx: number
+          free_flow_s: number
+          passed: boolean
+          pickup_distance_m: number
+          pickup_idx: number
+          plate: string
+          route_code: string
+          route_id: string
+          route_length_m: number
+          seat_count: number
+          seats_free: number
+          trip_id: string
+          trip_status: Database["public"]["Enums"]["trip_status"]
+        }[]
       }
       trip_seat_segments: {
         Args: { p_trip_id: string }

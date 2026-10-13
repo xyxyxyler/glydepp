@@ -1,5 +1,7 @@
 import {
   Banner,
+  BusCard,
+  LocationInput,
   CheckDraw,
   formatGHS,
   GlydeText,
@@ -69,6 +71,9 @@ function GalleryBody({
   const [checkKey, setCheckKey] = useState(0);
   const [showSkeleton, setShowSkeleton] = useState(true);
   const [pulsing, setPulsing] = useState(true);
+  const [selectedCard, setSelectedCard] = useState<number | null>(0);
+  const [activeField, setActiveField] = useState<string | null>(null);
+  const [extraStop, setExtraStop] = useState(false);
 
   const toastSamples: Record<ToastTone, { title: string; message: string }> = {
     success: { title: "Payment received", message: "Sample success toast" },
@@ -240,6 +245,66 @@ function GalleryBody({
             onValueChange={setPulsing}
           />
         </View>
+      </Section>
+
+      <Section title="LocationInput">
+        <LocationInput
+          fields={[
+            {
+              id: "p",
+              kind: "pickup",
+              text: "Current location · Madina",
+              placeholder: "Pickup stop",
+              accessibilityLabel: "Pickup",
+            },
+            {
+              id: "d",
+              kind: "dropoff",
+              text: "Ridge",
+              placeholder: "Where to?",
+              accessibilityLabel: "Drop-off",
+            },
+            ...(extraStop
+              ? [
+                  {
+                    id: "e",
+                    kind: "dropoff" as const,
+                    text: "",
+                    placeholder: "Another passenger’s stop",
+                    accessibilityLabel: "Extra drop-off",
+                    removable: true,
+                  },
+                ]
+              : []),
+          ]}
+          activeId={activeField}
+          onFocusField={setActiveField}
+          onChangeText={() => {}}
+          onAddStop={() => setExtraStop(true)}
+          onRemoveStop={() => setExtraStop(false)}
+        />
+      </Section>
+
+      <Section title="BusCard">
+        {[
+          { eta: 6, seats: 21, warning: null, fare: 1250 },
+          { eta: 18, seats: 6, warning: "almost-full" as const, fare: 1250 },
+          { eta: 31, seats: 2, warning: "last-seats" as const, fare: null },
+        ].map((c, i) => (
+          <BusCard
+            key={i}
+            etaMinutes={c.eta}
+            detail={`Arrives 17:4${i} · GLYDE-TEST-0${i + 1}`}
+            seatsFree={c.seats}
+            warning={c.warning}
+            farePesewas={c.fare}
+            selected={selectedCard === i}
+            onPress={() => setSelectedCard(i)}
+          />
+        ))}
+        <GlydeText variant="caption" tone="secondary">
+          Sample numbers only — not Glyde fares.
+        </GlydeText>
       </Section>
 
       <Section title="Banner & StatusChip">

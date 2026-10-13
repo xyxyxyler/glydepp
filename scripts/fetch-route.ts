@@ -55,7 +55,10 @@ const url =
   VIA.map(([lng, lat]) => `${lng},${lat}`).join(';') +
   '?overview=full&geometries=geojson';
 const res = await fetch(url);
-const body = (await res.json()) as { code: string; routes: { distance: number; geometry: { coordinates: [number, number][] } }[] };
+const body = (await res.json()) as {
+  code: string;
+  routes: { distance: number; duration: number; geometry: { coordinates: [number, number][] } }[];
+};
 if (body.code !== 'Ok') throw new Error(`OSRM: ${body.code}`);
 
 const path: LatLng[] = body.routes[0].geometry.coordinates.map(([lng, lat]) => ({
@@ -83,7 +86,13 @@ const out = {
   _source:
     'Road geometry: OSRM demo server (router.project-osrm.org), OpenStreetMap data © OpenStreetMap contributors, ODbL. ' +
     `Fetched ${new Date().toISOString().slice(0, 10)}. Stop list approved by Glyde 2026-10-13; coordinates need ground-truthing.`,
-  route: { code: 'ACC-DOD', name: 'Accra – Dodowa', length_m: Math.round(cumulative[cumulative.length - 1]) },
+  route: {
+    code: 'ACC-DOD',
+    name: 'Accra – Dodowa',
+    length_m: Math.round(cumulative[cumulative.length - 1]),
+    // OSRM free-flow driving time (no traffic, no stops). Basis for ETA estimates.
+    free_flow_s: Math.round(body.routes[0].duration),
+  },
   stops,
   path,
 };

@@ -3,7 +3,8 @@
  "route": {
   "code": "ACC-DOD",
   "name": "Accra – Dodowa",
-  "length_m": 42039
+  "length_m": 42039,
+  "free_flow_s": 3826
  },
  "stops": [
   {

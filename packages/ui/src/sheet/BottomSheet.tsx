@@ -1,4 +1,4 @@
-import GorhomBottomSheet, { BottomSheetView, useBottomSheetSpringConfigs } from '@gorhom/bottom-sheet';
+import GorhomBottomSheet, { BottomSheetScrollView, BottomSheetView, useBottomSheetSpringConfigs } from '@gorhom/bottom-sheet';
 import { createContext, useCallback, useContext, useEffect, useImperativeHandle, useMemo, useRef, type ReactNode, type Ref } from 'react';
 import { BackHandler, StyleSheet, View } from 'react-native';
 import { useAnimatedReaction, useDerivedValue, useSharedValue, type SharedValue } from 'react-native-reanimated';
@@ -65,6 +65,8 @@ export type BottomSheetProps = {
   children: ReactNode;
   ref?: Ref<BottomSheetHandle>;
   initialSnap?: SheetSnap;
+  /** Scroll content that is taller than the sheet (taps work while the keyboard is open). */
+  scrollable?: boolean;
   onSnapChange?: (snap: SheetSnap) => void;
   accessibilityLabel?: string;
 };
@@ -74,7 +76,14 @@ export type BottomSheetProps = {
  * velocity-aware flicks, interruptible drag. Never closes — swipe-down and Android back
  * collapse it, so entered data is kept.
  */
-export function BottomSheet({ children, ref: handleRef, initialSnap = 'collapsed', onSnapChange, accessibilityLabel }: BottomSheetProps) {
+export function BottomSheet({
+  children,
+  ref: handleRef,
+  initialSnap = 'collapsed',
+  scrollable = false,
+  onSnapChange,
+  accessibilityLabel,
+}: BottomSheetProps) {
   const { colors } = useTheme();
   const { position, containerHeight, settledHeight } = useSheetHeight();
   const ref = useRef<GorhomBottomSheet>(null);
@@ -132,7 +141,13 @@ export function BottomSheet({ children, ref: handleRef, initialSnap = 'collapsed
       handleIndicatorStyle={[styles.grabber, { backgroundColor: colors.border.default }]}
       accessibilityLabel={accessibilityLabel}
     >
-      <BottomSheetView style={styles.content}>{children}</BottomSheetView>
+      {scrollable ? (
+        <BottomSheetScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          {children}
+        </BottomSheetScrollView>
+      ) : (
+        <BottomSheetView style={styles.content}>{children}</BottomSheetView>
+      )}
     </GorhomBottomSheet>
   );
 }

@@ -65,3 +65,14 @@ export function resampleByDistance(points: LatLng[], count: number): LatLng[] {
   if (count < 2 || points.length < 2) return points.slice();
   return Array.from({ length: count }, (_, i) => pointAlong(points, i / (count - 1)));
 }
+
+/** The part of a polyline between two fractions (0..1) of its length. */
+export function polylineBetween(points: LatLng[], fromFraction: number, toFraction: number): LatLng[] {
+  if (points.length < 2) return points.slice();
+  const from = Math.max(0, Math.min(1, fromFraction));
+  const to = Math.max(from, Math.min(1, toFraction));
+  const head = slicePolyline(points, to); // start → `to`
+  const skip = slicePolyline(points, from); // start → `from`
+  // Drop the vertices that lie before `from`, keep its interpolated point as the new start.
+  return [skip[skip.length - 1], ...head.slice(skip.length)];
+}

@@ -7,7 +7,11 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
 type Stop = { idx: number; name: string; latitude: number; longitude: number; distance_m: number };
-type Data = { route: { code: string; name: string; length_m: number }; stops: Stop[]; path: { latitude: number; longitude: number }[] };
+type Data = {
+  route: { code: string; name: string; length_m: number; free_flow_s: number };
+  stops: Stop[];
+  path: { latitude: number; longitude: number }[];
+};
 
 const data = JSON.parse(readFileSync(new URL('../supabase/data/accra-dodowa.json', import.meta.url), 'utf8')) as Data;
 const q = (s: string) => `'${s.replace(/'/g, "''")}'`;
@@ -33,9 +37,10 @@ const outbound = data.stops.map((s) => ({ name: s.name, idx: s.idx, distance_m: 
 const inbound = [...data.stops].reverse().map((s, i) => ({ name: s.name, idx: i, distance_m: L - s.distance_m }));
 
 const routeSql = (direction: 'outbound' | 'inbound', name: string, stops: typeof outbound, path: Data['path']) => `
-insert into public.routes (code, name, direction, length_m)
-values (${q(data.route.code)}, ${q(name)}, '${direction}', ${L})
-on conflict (code, direction) do update set name = excluded.name, length_m = excluded.length_m;
+insert into public.routes (code, name, direction, length_m, free_flow_s)
+values (${q(data.route.code)}, ${q(name)}, '${direction}', ${L}, ${data.route.free_flow_s})
+on conflict (code, direction) do update
+  set name = excluded.name, length_m = excluded.length_m, free_flow_s = excluded.free_flow_s;
 
 insert into public.route_stops (route_id, stop_idx, stop_id, distance_m)
 select r.id, v.idx, s.id, v.distance_m

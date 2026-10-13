@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@expo-google-fonts/poppins": "^0.4.1",
+    "@glyde/domain": "*",
     "@glyde/ui": "*",
     "@gorhom/bottom-sheet": "^5.2.14",
     "@supabase/supabase-js": "^2.117.3",
@@ -15,8 +16,10 @@
     "expo-location": "~57.0.21",
     "expo-router": "~57.0.26",
     "expo-splash-screen": "~57.0.10",
+    "expo-sqlite": "~57.0.4",
     "expo-status-bar": "~57.0.1",
     "expo-system-ui": "~57.0.4",
+    "lucide-react-native": "^1.56.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.3",
@@ -27,8 +30,7 @@
     "react-native-screens": "~4.26.0",
     "react-native-svg": "15.15.4",
     "react-native-web": "~0.21.0",
-    "react-native-worklets": "0.10.1",
-    "@glyde/domain": "*"
+    "react-native-worklets": "0.10.1"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
