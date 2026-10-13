@@ -87,20 +87,29 @@ export function ProfileSetupScreen() {
       loadFailed={state.loadFailed}
       stopNames={network?.stops.map((s) => s.name) ?? []}
       save={save}
+      title="About you"
+      submitLabel="Next"
+      onSaved={() => router.push('/terms')}
     />
   );
 }
 
-function ProfileForm({
+export function ProfileForm({
   initial,
   loadFailed,
   stopNames,
   save,
+  title,
+  submitLabel,
+  onSaved,
 }: {
   initial: ProfileFields | null;
   loadFailed: boolean;
   stopNames: string[];
   save: ReturnType<typeof useProfile>['save'];
+  title: string;
+  submitLabel: string;
+  onSaved: () => void;
 }) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -142,7 +151,7 @@ function ProfileForm({
     const result = await save(trimmed);
     setSaving(false);
     if (result === 'ok') {
-      router.push('/terms');
+      onSaved();
       return;
     }
     hapticFor('failure');
@@ -168,7 +177,7 @@ function ProfileForm({
       <StatusBar style="dark" />
       <ScrollView ref={scroll} contentContainerStyle={[styles.pad, styles.body]} keyboardShouldPersistTaps="handled">
         <View style={styles.copy}>
-          <GlydeText variant="title1">About you</GlydeText>
+          <GlydeText variant="title1">{title}</GlydeText>
           <View style={[styles.helper, { backgroundColor: colors.brand.tint }]}>
             <Info size={size.iconChip} strokeWidth={size.iconStroke} color={colors.ink.primary} />
             <GlydeText variant="callout" style={styles.flex}>
@@ -240,7 +249,7 @@ function ProfileForm({
             {saveError}
           </GlydeText>
         )}
-        <PrimaryButton label="Next" loading={saving} haptic="confirm" onPress={() => void next()} />
+        <PrimaryButton label={submitLabel} loading={saving} haptic="confirm" onPress={() => void next()} />
       </View>
     </KeyboardAvoidingView>
   );

@@ -43,7 +43,14 @@ function SheetReadout() {
     const text = `sheet ${Math.round(height.value)}dp · camera padding ${Math.round(settledHeight.value)}dp`;
     return { text, defaultValue: text };
   });
-  return <AnimatedTextInput editable={false} animatedProps={props} style={[typeTokens.caption, styles.readout, { color: colors.ink.secondary }]} accessibilityLabel="Sheet height" />;
+  return (
+    <AnimatedTextInput
+      editable={false}
+      animatedProps={props}
+      style={[typeTokens.caption, styles.readout, { color: colors.ink.secondary }]}
+      accessibilityLabel="Sheet height"
+    />
+  );
 }
 
 export default function GalleryMap() {
@@ -98,7 +105,7 @@ function MapDemo() {
             Fake GPS on a real road (Madina → Adenta) · snap: {snap}
           </GlydeText>
           <SheetReadout />
-           <PrimaryButton label="Replay route draw" haptic="selection" onPress={() => setRouteKey((k) => k + 1)} />
+          <PrimaryButton label="Replay route draw" haptic="selection" onPress={() => setRouteKey((k) => k + 1)} />
           <Toggle label="GPS running" value={running} onChange={setRunning} />
           <Toggle label="Follow bus" value={follow} onChange={setFollow} />
           <Toggle label="Show raw GPS point (debug)" value={debugDot} onChange={setDebugDot} />
