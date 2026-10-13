@@ -1,4 +1,5 @@
 import {
+  Banner,
   CheckDraw,
   formatGHS,
   GlydeText,
@@ -8,6 +9,7 @@ import {
   RollingNumber,
   SecondaryButton,
   Skeleton,
+  StatusChip,
   size,
   space,
   ThemeProvider,
@@ -15,19 +17,24 @@ import {
   useToast,
   type ThemeName,
   type ToastTone,
-} from '@glyde/ui';
-import { router } from 'expo-router';
-import { useState, type ReactNode } from 'react';
-import { ScrollView, StyleSheet, Switch, View } from 'react-native';
-import { useReducedMotion } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+} from "@glyde/ui";
+import { router } from "expo-router";
+import { useState, type ReactNode } from "react";
+import { ScrollView, StyleSheet, Switch, View } from "react-native";
+import { useReducedMotion } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 /** Dev-only. Every @glyde/ui primitive in every state, for reviewing motion on a device. */
 export default function Gallery() {
-  const [theme, setTheme] = useState<ThemeName>('light');
+  const [theme, setTheme] = useState<ThemeName>("light");
   return (
     <ThemeProvider theme={theme}>
-      <GalleryBody theme={theme} onToggleTheme={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))} />
+      <GalleryBody
+        theme={theme}
+        onToggleTheme={() =>
+          setTheme((t) => (t === "light" ? "dark" : "light"))
+        }
+      />
     </ThemeProvider>
   );
 }
@@ -44,7 +51,13 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 const SAMPLE_FARES = [1250, 1500, 2475, 980, 12000]; // pesewas — sample numbers, not real fares
 
-function GalleryBody({ theme, onToggleTheme }: { theme: ThemeName; onToggleTheme: () => void }) {
+function GalleryBody({
+  theme,
+  onToggleTheme,
+}: {
+  theme: ThemeName;
+  onToggleTheme: () => void;
+}) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const toast = useToast();
@@ -58,58 +71,98 @@ function GalleryBody({ theme, onToggleTheme }: { theme: ThemeName; onToggleTheme
   const [pulsing, setPulsing] = useState(true);
 
   const toastSamples: Record<ToastTone, { title: string; message: string }> = {
-    success: { title: 'Payment received', message: 'Sample success toast' },
-    warning: { title: 'Bus approaching', message: 'Sample warning toast' },
-    danger: { title: 'Payment failed', message: 'Sample error toast' },
-    info: { title: 'Heads up', message: 'Sample info toast' },
+    success: { title: "Payment received", message: "Sample success toast" },
+    warning: { title: "Bus approaching", message: "Sample warning toast" },
+    danger: { title: "Payment failed", message: "Sample error toast" },
+    info: { title: "Heads up", message: "Sample info toast" },
   };
 
   return (
     <ScrollView
       style={{ backgroundColor: colors.bg.base }}
-      contentContainerStyle={[styles.content, { paddingTop: insets.top + space.md, paddingBottom: insets.bottom + space.xxxl }]}
+      contentContainerStyle={[
+        styles.content,
+        {
+          paddingTop: insets.top + space.md,
+          paddingBottom: insets.bottom + space.xxxl,
+        },
+      ]}
     >
       <GlydeText variant="title1">Gallery</GlydeText>
       <GlydeText variant="callout" tone="secondary">
-        Dev only · reduce motion: {reduceMotion ? 'on' : 'off'}
+        Dev only · reduce motion: {reduceMotion ? "on" : "off"}
       </GlydeText>
 
       <View style={styles.row}>
         <GlydeText variant="body">Dark theme</GlydeText>
-        <Switch accessibilityLabel="Dark theme" value={theme === 'dark'} onValueChange={onToggleTheme} />
+        <Switch
+          accessibilityLabel="Dark theme"
+          value={theme === "dark"}
+          onValueChange={onToggleTheme}
+        />
       </View>
 
-      <PrimaryButton label="Open map + bottom sheet demo" haptic="selection" onPress={() => router.push('/gallery-map')} />
+      <PrimaryButton
+        label="Open map + bottom sheet demo"
+        haptic="selection"
+        onPress={() => router.push("/gallery-map")}
+      />
 
       <Section title="Buttons">
         <GlydeText variant="caption" tone="secondary">
           Press and hold to see the pressed state.
         </GlydeText>
-        <PrimaryButton label="Proceed to Payment" disabled={disabled} loading={loading} />
-        <SecondaryButton label="Secondary action" disabled={disabled} loading={loading} />
+        <PrimaryButton
+          label="Proceed to Payment"
+          disabled={disabled}
+          loading={loading}
+        />
+        <SecondaryButton
+          label="Secondary action"
+          disabled={disabled}
+          loading={loading}
+        />
         <View style={styles.row}>
           <GlydeText variant="body">Loading</GlydeText>
-          <Switch accessibilityLabel="Loading" value={loading} onValueChange={setLoading} />
+          <Switch
+            accessibilityLabel="Loading"
+            value={loading}
+            onValueChange={setLoading}
+          />
         </View>
         <View style={styles.row}>
           <GlydeText variant="body">Disabled</GlydeText>
-          <Switch accessibilityLabel="Disabled" value={disabled} onValueChange={setDisabled} />
+          <Switch
+            accessibilityLabel="Disabled"
+            value={disabled}
+            onValueChange={setDisabled}
+          />
         </View>
       </Section>
 
       <Section title="Skeleton">
         {showSkeleton ? (
           <View style={styles.skeletonCard}>
-            <Skeleton width={size.busMarker} height={size.busMarker} radius="md" />
+            <Skeleton
+              width={size.busMarker}
+              height={size.busMarker}
+              radius="md"
+            />
             <View style={styles.skeletonLines}>
               <Skeleton height={space.md} width="60%" radius="sm" />
               <Skeleton height={space.sm} width="40%" radius="sm" />
             </View>
-            <Skeleton width={space.xxxl + space.md} height={space.md} radius="sm" />
+            <Skeleton
+              width={space.xxxl + space.md}
+              height={space.md}
+              radius="sm"
+            />
           </View>
         ) : (
           <View style={styles.skeletonCard}>
-            <View style={[styles.fakeIcon, { backgroundColor: colors.brand.tint }]} />
+            <View
+              style={[styles.fakeIcon, { backgroundColor: colors.brand.tint }]}
+            />
             <View style={styles.skeletonLines}>
               <GlydeText variant="headline">Loaded content</GlydeText>
               <GlydeText variant="caption" tone="secondary">
@@ -120,7 +173,7 @@ function GalleryBody({ theme, onToggleTheme }: { theme: ThemeName; onToggleTheme
           </View>
         )}
         <SecondaryButton
-          label={showSkeleton ? 'Show loaded state' : 'Show loading state'}
+          label={showSkeleton ? "Show loaded state" : "Show loading state"}
           onPress={() => setShowSkeleton((s) => !s)}
         />
       </Section>
@@ -130,12 +183,31 @@ function GalleryBody({ theme, onToggleTheme }: { theme: ThemeName; onToggleTheme
         <PrimaryButton
           label="Next sample fare"
           haptic="selection"
-          onPress={() => setFare((f) => SAMPLE_FARES[(SAMPLE_FARES.indexOf(f) + 1) % SAMPLE_FARES.length])}
+          onPress={() =>
+            setFare(
+              (f) =>
+                SAMPLE_FARES[
+                  (SAMPLE_FARES.indexOf(f) + 1) % SAMPLE_FARES.length
+                ],
+            )
+          }
         />
         <View style={styles.row}>
-          <SecondaryButton label="−" accessibilityHint="One fewer seat" onPress={() => setSeats((s) => Math.max(0, s - 1))} />
-          <RollingNumber value={seats} format={(n) => `${n} seats left`} variant="headline" />
-          <SecondaryButton label="+" accessibilityHint="One more seat" onPress={() => setSeats((s) => s + 1)} />
+          <SecondaryButton
+            label="−"
+            accessibilityHint="One fewer seat"
+            onPress={() => setSeats((s) => Math.max(0, s - 1))}
+          />
+          <RollingNumber
+            value={seats}
+            format={(n) => `${n} seats left`}
+            variant="headline"
+          />
+          <SecondaryButton
+            label="+"
+            accessibilityHint="One more seat"
+            onPress={() => setSeats((s) => s + 1)}
+          />
         </View>
       </Section>
 
@@ -143,18 +215,52 @@ function GalleryBody({ theme, onToggleTheme }: { theme: ThemeName; onToggleTheme
         <View style={styles.centre}>
           <CheckDraw playKey={checkKey} haptic={checkKey > 0} />
         </View>
-        <SecondaryButton label="Replay" onPress={() => setCheckKey((k) => k + 1)} />
+        <SecondaryButton
+          label="Replay"
+          onPress={() => setCheckKey((k) => k + 1)}
+        />
       </Section>
 
       <Section title="PulseRing">
         <View style={[styles.centre, styles.pulseStage]}>
-          <PulseRing size={size.busMarker} active={pulsing} style={styles.absolute} />
-          <View style={[styles.userDot, { backgroundColor: colors.marker.userDot }]} />
+          <PulseRing
+            size={size.busMarker}
+            active={pulsing}
+            style={styles.absolute}
+          />
+          <View
+            style={[styles.userDot, { backgroundColor: colors.marker.userDot }]}
+          />
         </View>
         <View style={styles.row}>
           <GlydeText variant="body">Active</GlydeText>
-          <Switch accessibilityLabel="Pulse active" value={pulsing} onValueChange={setPulsing} />
+          <Switch
+            accessibilityLabel="Pulse active"
+            value={pulsing}
+            onValueChange={setPulsing}
+          />
         </View>
+      </Section>
+
+      <Section title="Banner & StatusChip">
+        <Banner
+          tone="warning"
+          message="Enable location services to view nearby buses and accurate routes."
+          actionLabel="Open Settings"
+          onAction={() => toast.show({ tone: "info", title: "Action pressed" })}
+        />
+        <Banner
+          tone="danger"
+          message="Couldn't load live buses."
+          actionLabel="Retry"
+          onAction={() => toast.show({ tone: "info", title: "Retry pressed" })}
+        />
+        <Banner
+          tone="info"
+          message="Offline — showing last known bus positions."
+        />
+        <StatusChip label="Finding buses…" />
+        <StatusChip label="Almost full" tone="warning" />
       </Section>
 
       <Section title="Toast">
@@ -173,13 +279,31 @@ function GalleryBody({ theme, onToggleTheme }: { theme: ThemeName; onToggleTheme
 
 const styles = StyleSheet.create({
   content: { paddingHorizontal: space.screenX, gap: space.xl },
-  section: { gap: space.sm, paddingTop: space.xl, borderTopWidth: size.hairline },
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.sm, minHeight: size.tapMin },
-  centre: { alignItems: 'center', justifyContent: 'center' },
-  absolute: { position: 'absolute' },
+  section: {
+    gap: space.sm,
+    paddingTop: space.xl,
+    borderTopWidth: size.hairline,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: space.sm,
+    minHeight: size.tapMin,
+  },
+  centre: { alignItems: "center", justifyContent: "center" },
+  absolute: { position: "absolute" },
   pulseStage: { height: size.busMarker * 2 },
-  userDot: { width: size.userDot, height: size.userDot, borderRadius: radius.pill },
-  skeletonCard: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  userDot: {
+    width: size.userDot,
+    height: size.userDot,
+    borderRadius: radius.pill,
+  },
+  skeletonCard: { flexDirection: "row", alignItems: "center", gap: space.sm },
   skeletonLines: { flex: 1, gap: space.xs },
-  fakeIcon: { width: size.busMarker, height: size.busMarker, borderRadius: radius.md },
+  fakeIcon: {
+    width: size.busMarker,
+    height: size.busMarker,
+    borderRadius: radius.md,
+  },
 });

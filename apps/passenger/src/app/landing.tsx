@@ -12,11 +12,18 @@ export default function Landing() {
         Placeholder — built in the next task.
       </GlydeText>
       {__DEV__ && (
-        <Link href="/gallery" style={styles.devLink}>
-          <GlydeText variant="callout" tone="secondary">
-            Dev: open Gallery
-          </GlydeText>
-        </Link>
+        <>
+          <Link href="/home" style={styles.devLink}>
+            <GlydeText variant="callout" tone="secondary">
+              Dev: open Home
+            </GlydeText>
+          </Link>
+          <Link href="/gallery" style={styles.devLink}>
+            <GlydeText variant="callout" tone="secondary">
+              Dev: open Gallery
+            </GlydeText>
+          </Link>
+        </>
       )}
     </View>
   );

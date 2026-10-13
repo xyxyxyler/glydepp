@@ -18,8 +18,8 @@ const LOGO_HEIGHT = splash.logoWidth / splash.logoAspect;
 export function SplashScreen() {
   const status = useOnboardingStatus();
   const { logoStyle, exiting } = useSplashExit(status !== 'loading', () => {
-    // TODO(Home): onboarded users go to '/home' (or their active trip) once it exists.
-    router.replace('/landing');
+    // Onboarded users skip onboarding (uix-spec 2.1 note). Active-trip restore comes with booking.
+    router.replace(status === 'onboarded' ? '/home' : '/landing');
   });
 
   return (

@@ -135,6 +135,7 @@ export const size = {
   checkStroke: 4,
   routeStroke: 5,
   toastAccent: 4,
+  statusDot: 8,
 } as const;
 
 export const elevation = {

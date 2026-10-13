@@ -11,9 +11,12 @@ export { RollingNumber, formatGHS, type RollingNumberProps } from './src/compone
 export { CheckDraw, type CheckDrawProps } from './src/components/CheckDraw';
 export { PulseRing, type PulseRingProps } from './src/components/PulseRing';
 export { ToastProvider, useToast, type ToastOptions, type ToastTone } from './src/components/Toast';
+export { Banner, type BannerProps } from './src/components/Banner';
+export { StatusChip, type StatusChipProps } from './src/components/StatusChip';
 
 export {
   BottomSheet,
+  type BottomSheetHandle,
   SheetHeightProvider,
   useSheetHeight,
   type BottomSheetProps,

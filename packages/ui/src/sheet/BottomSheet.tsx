@@ -1,5 +1,5 @@
 import GorhomBottomSheet, { BottomSheetView, useBottomSheetSpringConfigs } from '@gorhom/bottom-sheet';
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useImperativeHandle, useMemo, useRef, type ReactNode, type Ref } from 'react';
 import { BackHandler, StyleSheet, View } from 'react-native';
 import { useAnimatedReaction, useDerivedValue, useSharedValue, type SharedValue } from 'react-native-reanimated';
 
@@ -56,8 +56,14 @@ export function useSheetHeight(): SheetHeightValue {
   return ctx;
 }
 
+export type BottomSheetHandle = {
+  /** Spring to a snap point (spring.sheet), as if the user had dragged there. */
+  snapTo: (snap: SheetSnap) => void;
+};
+
 export type BottomSheetProps = {
   children: ReactNode;
+  ref?: Ref<BottomSheetHandle>;
   initialSnap?: SheetSnap;
   onSnapChange?: (snap: SheetSnap) => void;
   accessibilityLabel?: string;
@@ -68,7 +74,7 @@ export type BottomSheetProps = {
  * velocity-aware flicks, interruptible drag. Never closes — swipe-down and Android back
  * collapse it, so entered data is kept.
  */
-export function BottomSheet({ children, initialSnap = 'collapsed', onSnapChange, accessibilityLabel }: BottomSheetProps) {
+export function BottomSheet({ children, ref: handleRef, initialSnap = 'collapsed', onSnapChange, accessibilityLabel }: BottomSheetProps) {
   const { colors } = useTheme();
   const { position, containerHeight, settledHeight } = useSheetHeight();
   const ref = useRef<GorhomBottomSheet>(null);
@@ -96,6 +102,10 @@ export function BottomSheet({ children, initialSnap = 'collapsed', onSnapChange,
     },
     [containerHeight, onSnapChange, settledFraction, settledHeight],
   );
+
+  useImperativeHandle(handleRef, () => ({
+    snapTo: (snap) => ref.current?.snapToIndex(SNAP_ORDER.indexOf(snap)),
+  }));
 
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {

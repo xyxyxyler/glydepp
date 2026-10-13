@@ -33,6 +33,7 @@ export default function RootLayout() {
               {/* Splash fades out to black; Landing fades in. Onboarding steps use the native push. */}
               <Stack.Screen name="index" options={{ animation: 'fade' }} />
               <Stack.Screen name="landing" options={{ animation: 'fade' }} />
+              <Stack.Screen name="home" options={{ animation: 'fade' }} />
             </Stack>
           </ToastProvider>
         </ThemeProvider>
