@@ -199,7 +199,12 @@ export const nudge = { amplitude: 2 } as const;
 export const seat = { selectScale: 1.08 } as const;
 export const marker = { enterScaleFrom: 0.6, staleOpacity: 0.5 } as const; // staleOpacity [added] (§8.2 "dim slightly")
 /** Splash (DESIGN.md §2: the logo is supplied on black). Uses the dark base so it stays one value. [added] */
-export const splash = { background: dark.bg.base, logoSize: 96, exitScale: 0.92 } as const;
+export const splash = {
+  background: dark.bg.base,
+  logoWidth: 80, // dp; native splash imageWidth must equal this
+  logoAspect: 537 / 629, // width / height of assets/images/glyde-logo.png (tightly cropped G)
+  exitScale: 0.92,
+} as const;
 
 /** Swipe-to-dismiss thresholds (toast, sheet). [added] */
 export const gesture = { dismissVelocity: 500, dismissFraction: 1 / 3 } as const;

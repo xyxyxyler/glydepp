@@ -13,7 +13,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         backgroundColor: splash.background,
         image: './assets/images/glyde-logo.png',
-        imageWidth: splash.logoSize,
+        imageWidth: splash.logoWidth,
       },
     ],
   ],
