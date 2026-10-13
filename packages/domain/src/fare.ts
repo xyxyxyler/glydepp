@@ -1,6 +1,6 @@
 /**
  * Fare anatomy (uix-spec HQ "Revenue Breakdown"):
- *   base fare (core price for the distance and seat) — × HQ dynamic-pricing multiplier
+ *   base fare (core price for the distance and seat: flat per seat + per km) — × HQ dynamic-pricing multiplier
  * + booking fee (fixed per seat)
  * + platform fee (percentage)
  * − discounts
@@ -10,6 +10,8 @@
  * Assumption (flagged, docs don't say): the platform % applies to the base fare, not the fees.
  */
 export type FareRules = {
+  /** Flat part of the base fare, per seat. */
+  basePesewas: number;
   perKmPesewas: number;
   bookingFeePesewas: number;
   platformFeeBps: number; // 100 bps = 1%
@@ -27,7 +29,7 @@ export type FareBreakdown = {
 /** Fare for one seat over `distanceM` metres of the route. */
 export function seatFare(distanceM: number, rules: FareRules | null, discountPesewas = 0): FareBreakdown | null {
   if (!rules || distanceM < 0) return null;
-  const basePesewas = Math.round((rules.perKmPesewas * distanceM * rules.peakMultiplier) / 1000);
+  const basePesewas = Math.round((rules.basePesewas + (rules.perKmPesewas * distanceM) / 1000) * rules.peakMultiplier);
   const platformFeePesewas = Math.round((basePesewas * rules.platformFeeBps) / 10_000);
   const gross = basePesewas + rules.bookingFeePesewas + platformFeePesewas;
   const discount = Math.min(Math.max(0, discountPesewas), gross);

@@ -11,7 +11,7 @@ export function useFareRules(routeCode: string | null): FareRules | null {
     let cancelled = false;
     void supabase
       .from('fare_rules')
-      .select('per_km_pesewas, booking_fee_pesewas, platform_fee_bps, peak_multiplier')
+      .select('base_pesewas, per_km_pesewas, booking_fee_pesewas, platform_fee_bps, peak_multiplier')
       .eq('route_code', routeCode)
       .eq('active', true)
       .maybeSingle()
@@ -20,6 +20,7 @@ export function useFareRules(routeCode: string | null): FareRules | null {
         setRules(
           data
             ? {
+                basePesewas: data.base_pesewas,
                 perKmPesewas: data.per_km_pesewas,
                 bookingFeePesewas: data.booking_fee_pesewas,
                 platformFeeBps: data.platform_fee_bps,

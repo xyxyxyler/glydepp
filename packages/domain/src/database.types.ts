@@ -87,9 +87,11 @@ export type Database = {
       fare_rules: {
         Row: {
           active: boolean
+          base_pesewas: number
           booking_fee_pesewas: number
           created_at: string
           id: string
+          note: string | null
           peak_multiplier: number
           per_km_pesewas: number
           platform_fee_bps: number
@@ -97,9 +99,11 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          base_pesewas?: number
           booking_fee_pesewas: number
           created_at?: string
           id?: string
+          note?: string | null
           peak_multiplier?: number
           per_km_pesewas: number
           platform_fee_bps: number
@@ -107,9 +111,11 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          base_pesewas?: number
           booking_fee_pesewas?: number
           created_at?: string
           id?: string
+          note?: string | null
           peak_multiplier?: number
           per_km_pesewas?: number
           platform_fee_bps?: number
