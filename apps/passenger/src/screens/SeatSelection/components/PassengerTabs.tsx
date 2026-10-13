@@ -1,5 +1,5 @@
-import { GlydeText, hapticFor, radius, size, space, useTheme } from "@glyde/ui";
-import { Pressable, ScrollView, StyleSheet } from "react-native";
+import { GlydeText, hapticFor, radius, size, space, useTheme } from '@glyde/ui';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
 
 export type PassengerTab = {
   key: string;
@@ -19,11 +19,7 @@ export function PassengerTabs({
 }) {
   const { colors } = useTheme();
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.row}
-    >
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
       {tabs.map((t, i) => {
         const active = t.key === activeKey;
         return (
@@ -31,9 +27,9 @@ export function PassengerTabs({
             key={t.key}
             accessibilityRole="tab"
             accessibilityState={{ selected: active }}
-            accessibilityLabel={`Passenger ${i + 1}, ${t.title}, ${t.seatNo ? `seat ${t.seatNo}` : "no seat yet"}`}
+            accessibilityLabel={`Passenger ${i + 1}, ${t.title}, ${t.seatNo ? `seat ${t.seatNo}` : 'no seat yet'}`}
             onPress={() => {
-              hapticFor("selection");
+              hapticFor('selection');
               onSelect(t.key);
             }}
             style={[
@@ -46,7 +42,7 @@ export function PassengerTabs({
           >
             <GlydeText variant="callout">{`P${i + 1} · ${t.title}`}</GlydeText>
             <GlydeText variant="caption" tone="secondary">
-              {t.seatNo ? `Seat ${t.seatNo}` : "Choose a seat"}
+              {t.seatNo ? `Seat ${t.seatNo}` : 'Choose a seat'}
             </GlydeText>
           </Pressable>
         );
@@ -59,7 +55,7 @@ const styles = StyleSheet.create({
   row: { gap: space.xs },
   tab: {
     minHeight: size.tapMin,
-    justifyContent: "center",
+    justifyContent: 'center',
     paddingHorizontal: space.sm,
     paddingVertical: space.xs,
     borderRadius: radius.md,

@@ -1,24 +1,16 @@
-import { useEffect, useRef } from "react";
-import { Pressable, StyleSheet, TextInput, View } from "react-native";
+import { useEffect, useRef } from 'react';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
   withSequence,
   withTiming,
-} from "react-native-reanimated";
+} from 'react-native-reanimated';
 
-import {
-  a11y,
-  motion,
-  radius,
-  shake,
-  size,
-  space,
-  type as typeTokens,
-} from "../../tokens";
-import { useTheme } from "../theme";
-import { GlydeText } from "./GlydeText";
+import { a11y, motion, radius, shake, size, space, type as typeTokens } from '../../tokens';
+import { useTheme } from '../theme';
+import { GlydeText } from './GlydeText';
 
 export type OtpInputProps = {
   value: string;
@@ -44,7 +36,7 @@ export function OtpInput({
   invalid = false,
   disabled = false,
   autoFocus = true,
-  accessibilityLabel = "Verification code",
+  accessibilityLabel = 'Verification code',
 }: OtpInputProps) {
   const { colors } = useTheme();
   const reduceMotion = useReducedMotion();
@@ -56,10 +48,7 @@ export function OtpInput({
     const step = motion.shake / (shake.cycles * 2);
     const swing = [];
     for (let i = 0; i < shake.cycles; i++) {
-      swing.push(
-        withTiming(shake.amplitude, { duration: step }),
-        withTiming(-shake.amplitude, { duration: step }),
-      );
+      swing.push(withTiming(shake.amplitude, { duration: step }), withTiming(-shake.amplitude, { duration: step }));
     }
     x.set(withSequence(...swing, withTiming(0, { duration: step })));
   }, [errorKey, reduceMotion, x]);
@@ -67,33 +56,22 @@ export function OtpInput({
   const shakeStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: x.get() }],
   }));
-  const digits = value.split("");
+  const digits = value.split('');
 
   return (
-    <Pressable
-      onPress={() => input.current?.focus()}
-      accessibilityLabel={accessibilityLabel}
-      disabled={disabled}
-    >
+    <Pressable onPress={() => input.current?.focus()} accessibilityLabel={accessibilityLabel} disabled={disabled}>
       <Animated.View style={[styles.row, shakeStyle]}>
         {Array.from({ length }, (_, i) => {
           const active = !disabled && i === Math.min(value.length, length - 1);
-          const border = invalid
-            ? colors.status.danger
-            : active
-              ? colors.ink.primary
-              : colors.border.default;
+          const border = invalid ? colors.status.danger : active ? colors.ink.primary : colors.border.default;
           return (
             <View
               key={i}
-              style={[
-                styles.box,
-                { backgroundColor: colors.bg.subtle, borderColor: border },
-              ]}
+              style={[styles.box, { backgroundColor: colors.bg.subtle, borderColor: border }]}
               importantForAccessibility="no-hide-descendants"
             >
               <GlydeText variant="title2" tabular>
-                {digits[i] ?? ""}
+                {digits[i] ?? ''}
               </GlydeText>
             </View>
           );
@@ -102,7 +80,7 @@ export function OtpInput({
       <TextInput
         ref={input}
         value={value}
-        onChangeText={(t) => onChange(t.replace(/\D/g, "").slice(0, length))}
+        onChangeText={(t) => onChange(t.replace(/\D/g, '').slice(0, length))}
         keyboardType="number-pad"
         textContentType="oneTimeCode"
         autoComplete="sms-otp"
@@ -119,18 +97,18 @@ export function OtpInput({
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: "row", gap: space.xs },
+  row: { flexDirection: 'row', gap: space.xs },
   box: {
     flex: 1,
     height: size.otpBox,
     borderRadius: radius.md,
     borderWidth: size.seatBorder,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   // Kept in the tree (focusable, receives paste/autofill) but invisible.
   hidden: {
-    position: "absolute",
+    position: 'absolute',
     width: size.hairline,
     height: size.hairline,
     opacity: 0,
