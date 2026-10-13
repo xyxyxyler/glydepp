@@ -148,6 +148,7 @@ export type Database = {
           onboarded_at: string | null
           residential_area: string
           terms_accepted_at: string | null
+          terms_version: string | null
           updated_at: string
           work_location: string
         }
@@ -160,6 +161,7 @@ export type Database = {
           onboarded_at?: string | null
           residential_area: string
           terms_accepted_at?: string | null
+          terms_version?: string | null
           updated_at?: string
           work_location: string
         }
@@ -172,6 +174,7 @@ export type Database = {
           onboarded_at?: string | null
           residential_area?: string
           terms_accepted_at?: string | null
+          terms_version?: string | null
           updated_at?: string
           work_location?: string
         }

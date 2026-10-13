@@ -62,11 +62,28 @@ export function useProfile() {
     [userId],
   );
 
+  /** Record acceptance of a specific terms version (uix-spec 2.1 Terms & Conditions). */
+  const acceptTerms = useCallback(
+    async (version: string): Promise<'ok' | 'offline' | 'error'> => {
+      if (!userId) return 'error';
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ terms_accepted_at: new Date().toISOString(), terms_version: version })
+        .eq('id', userId)
+        .select('*')
+        .single();
+      if (error) return /fetch|network/i.test(error.message) ? 'offline' : 'error';
+      setLoaded({ userId, profile: data, loadFailed: false });
+      return 'ok';
+    },
+    [userId],
+  );
+
   let state: ProfileState;
   if (session.status === 'loading') state = { status: 'loading' };
   else if (!userId) state = { status: 'signed-out' };
   else if (!loaded || loaded.userId !== userId) state = { status: 'loading' };
   else state = { status: 'ready', ...loaded };
 
-  return { state, save };
+  return { state, save, acceptTerms };
 }

@@ -215,6 +215,8 @@ export const splash = {
 
 /** Swipe-to-dismiss thresholds (toast, sheet). [added] */
 export const gesture = { dismissVelocity: 500, dismissFraction: 1 / 3 } as const;
+/** Opacity for controls that can't be used yet (with a spoken reason). [added] */
+export const disabledOpacity = 0.4;
 export const contentEnter = { translateY: 12 } as const; // §8.1 sheet content
 
 /** Bottom sheet snap points as fraction of screen height (DESIGN.md §7). */
