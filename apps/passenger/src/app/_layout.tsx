@@ -33,6 +33,8 @@ export default function RootLayout() {
               {/* Splash fades out to black; Landing fades in. Onboarding steps use the native push. */}
               <Stack.Screen name="index" options={{ animation: 'fade' }} />
               <Stack.Screen name="landing" options={{ animation: 'fade' }} />
+              {/* Signed in: no way back into the code screen. */}
+              <Stack.Screen name="profile" options={{ animation: 'fade', gestureEnabled: false }} />
               <Stack.Screen name="home" options={{ animation: 'fade' }} />
               {/* Short push from Home's results (DESIGN.md §8.5). */}
               <Stack.Screen name="seats" options={{ animation: 'slide_from_right' }} />

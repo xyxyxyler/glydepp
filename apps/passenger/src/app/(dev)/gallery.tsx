@@ -4,6 +4,7 @@ import {
   SeatGrid,
   type SeatCell,
   LocationInput,
+  OtpInput,
   CheckDraw,
   formatGHS,
   GlydeText,
@@ -102,6 +103,8 @@ function GalleryBody({
   const [activeField, setActiveField] = useState<string | null>(null);
   const [extraStop, setExtraStop] = useState(false);
   const [gallerySeat, setGallerySeat] = useState<number | null>(4);
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState(0);
 
   const toastSamples: Record<ToastTone, { title: string; message: string }> = {
     success: { title: "Payment received", message: "Sample success toast" },
@@ -333,6 +336,24 @@ function GalleryBody({
         <GlydeText variant="caption" tone="secondary">
           Sample numbers only — not Glyde fares.
         </GlydeText>
+      </Section>
+
+      <Section title="OtpInput">
+        <OtpInput
+          value={otp}
+          onChange={setOtp}
+          errorKey={otpError}
+          invalid={otpError > 0 && otp.length === 0}
+          autoFocus={false}
+        />
+        <SecondaryButton
+          label="Simulate wrong code"
+          haptic="failure"
+          onPress={() => {
+            setOtp("");
+            setOtpError((k) => k + 1);
+          }}
+        />
       </Section>
 
       <Section title="SeatGrid">

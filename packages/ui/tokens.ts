@@ -141,6 +141,7 @@ export const size = {
   locationMarker: 10,
   connectorDot: 3,
   busCardIcon: 44,
+  otpBox: 56, // height; width flexes to fit 6 boxes in a phone width
 } as const;
 
 export const elevation = {

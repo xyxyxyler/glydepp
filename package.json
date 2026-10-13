@@ -15,7 +15,10 @@
     "db:test": "node scripts/db-test.ts",
     "db:types": "set -a && . ./.env.local && set +a && supabase gen types typescript --linked --schema public > packages/domain/src/database.types.ts",
     "gps:replay": "node scripts/gps-replay.ts",
-    "gps:watch": "node scripts/watch-positions.ts"
+    "gps:watch": "node scripts/watch-positions.ts",
+    "test:auth": "node scripts/test-auth-otp.ts",
+    "fn:deploy": "set -a && . ./.env.local && set +a && supabase functions deploy --use-api --project-ref \"$SUPABASE_PROJECT_REF\"",
+    "db:seed": "set -a && . ./.env.local && set +a && PGPASSWORD=\"$SUPABASE_DB_PASSWORD\" psql \"$(cat supabase/.temp/pooler-url)\" -q -v ON_ERROR_STOP=1 -f supabase/seed.sql"
   },
   "devDependencies": {
     "supabase": "^2.120.0"

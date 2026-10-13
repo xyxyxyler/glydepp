@@ -19,7 +19,7 @@ export function SplashScreen() {
   const status = useOnboardingStatus();
   const { logoStyle, exiting } = useSplashExit(status !== 'loading', () => {
     // Onboarded users skip onboarding (uix-spec 2.1 note). Active-trip restore comes with booking.
-    router.replace(status === 'onboarded' ? '/home' : '/landing');
+    router.replace(status === 'onboarded' ? '/home' : status === 'signed-in' ? '/profile' : '/landing');
   });
 
   return (
