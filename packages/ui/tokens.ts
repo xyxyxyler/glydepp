@@ -40,6 +40,10 @@ const light = {
   marker: { available: brand.primary, inactive: '#3A3A3A', userDot: '#0B0B0B' }, // inactive hex [added] (§6 says "dark grey")
   shimmer: { base: '#F5F5F5', highlight: '#FFFFFF' }, // [added]
   scrim: 'rgba(0,0,0,0.12)', // [added]
+  // Frosted-glass alerts (user request 2026-10-14). [added]
+  glass: { blurTint: 'systemThinMaterialLight', fill: 'rgba(255,255,255,0.72)', border: 'rgba(255,255,255,0.6)' },
+  // Pale circles behind status icons. [added]
+  statusTint: { success: '#E7F9E7', warning: '#FEF3DE', danger: '#FDEBEC', info: '#E8F1FD' },
 } as const;
 
 /** Dark: DESIGN.md gives bg/ink/border only; disabled, seat, marker, shimmer, scrim are [added]. */
@@ -59,6 +63,13 @@ const dark = {
   marker: { available: brand.primary, inactive: '#7A7A7A', userDot: '#FFFFFF' },
   shimmer: { base: '#141414', highlight: '#2A2A2A' },
   scrim: 'rgba(0,0,0,0.4)',
+  glass: { blurTint: 'systemThinMaterialDark', fill: 'rgba(27,27,27,0.72)', border: 'rgba(255,255,255,0.12)' },
+  statusTint: {
+    success: 'rgba(12,198,12,0.18)',
+    warning: 'rgba(245,165,36,0.18)',
+    danger: 'rgba(229,72,77,0.18)',
+    info: 'rgba(47,128,237,0.18)',
+  },
 } as const;
 
 type Widen<T> = { -readonly [K in keyof T]: T[K] extends object ? Widen<T[K]> : T[K] extends string ? string : T[K] extends number ? number : T[K] };
@@ -134,7 +145,8 @@ export const size = {
   checkDraw: 72,
   checkStroke: 4,
   routeStroke: 5,
-  toastAccent: 4,
+  alertIcon: 36, // pale status circle in toasts/banners
+  glassBlur: 80, // BlurView intensity (1–100)
   statusDot: 8,
   iconStroke: 2, // DESIGN.md §6: outline icons, 2px stroke
   locationRow: 48,

@@ -11,10 +11,10 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import { elevation, gesture, motion, radius, size, space, spring, type HapticMoment } from '../../tokens';
+import { gesture, motion, size, space, spring, type HapticMoment } from '../../tokens';
 import { hapticFor } from '../haptics';
 import { easing } from '../motion/easing';
-import { useTheme } from '../theme';
+import { GlassSurface, StatusIcon } from './GlassSurface';
 import { GlydeText } from './GlydeText';
 
 export type ToastTone = 'success' | 'warning' | 'danger' | 'info';
@@ -35,11 +35,10 @@ export function useToast(): ToastApi {
 }
 
 /**
- * DESIGN.md §7 / §8.10: toast slides from the top with a spring, has a status.* accent,
+ * DESIGN.md §7 / §8.10: toast slides from the top with a spring, frosted glass with a pale status icon,
  * auto-dismisses after 5 s, swipe up to dismiss, haptic on show.
  */
 export function ToastProvider({ children }: { children: ReactNode }) {
-  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const reduceMotion = useReducedMotion();
   const [toast, setToast] = useState<(ToastOptions & { id: number }) | null>(null);
@@ -90,16 +89,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const pan = useMemo(
     () =>
       Gesture.Pan()
-    .onChange((e) => {
-      translateY.set(Math.min(0, translateY.get() + e.changeY));
-    })
-    .onEnd((e) => {
-      if (translateY.get() < -height.get() * gesture.dismissFraction || e.velocityY < -gesture.dismissVelocity) {
-        animateOut(); // the auto-dismiss timer is cleared when the toast unmounts
-      } else {
-        translateY.set(withSpring(0, spring.sheet));
-      }
-    }),
+        .onChange((e) => {
+          translateY.set(Math.min(0, translateY.get() + e.changeY));
+        })
+        .onEnd((e) => {
+          if (translateY.get() < -height.get() * gesture.dismissFraction || e.velocityY < -gesture.dismissVelocity) {
+            animateOut(); // the auto-dismiss timer is cleared when the toast unmounts
+          } else {
+            translateY.set(withSpring(0, spring.sheet));
+          }
+        }),
     [animateOut, height, translateY],
   );
 
@@ -109,7 +108,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }));
 
   const api = useMemo(() => ({ show, hide }), [show, hide]);
-  const accent = toast ? colors.status[toast.tone ?? 'info'] : colors.status.info;
 
   return (
     <ToastContext.Provider value={api}>
@@ -134,14 +132,21 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   translateY.set(withSpring(0, spring.sheet));
                 }
               }}
-              style={[styles.toast, { backgroundColor: colors.bg.sheet, borderLeftColor: accent }, animatedStyle]}
+              style={animatedStyle}
             >
-              <GlydeText variant="headline">{toast.title}</GlydeText>
-              {toast.message ? (
-                <GlydeText variant="callout" tone="secondary">
-                  {toast.message}
-                </GlydeText>
-              ) : null}
+              <GlassSurface>
+                <View style={styles.toast}>
+                  <StatusIcon tone={toast.tone ?? 'info'} />
+                  <View style={styles.text}>
+                    <GlydeText variant="headline">{toast.title}</GlydeText>
+                    {toast.message ? (
+                      <GlydeText variant="callout" tone="secondary">
+                        {toast.message}
+                      </GlydeText>
+                    ) : null}
+                  </View>
+                </View>
+              </GlassSurface>
             </Animated.View>
           </GestureDetector>
         </View>
@@ -153,12 +158,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 const styles = StyleSheet.create({
   host: { position: 'absolute', left: space.screenX, right: space.screenX },
   toast: {
-    ...elevation.floating,
-    borderRadius: radius.lg,
-    borderLeftWidth: size.toastAccent,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.sm,
     paddingVertical: space.sm,
-    paddingHorizontal: space.md,
+    paddingHorizontal: space.sm,
     minHeight: size.tapMin,
-    gap: space.xxs,
   },
+  text: { flex: 1, gap: space.xxs },
 });

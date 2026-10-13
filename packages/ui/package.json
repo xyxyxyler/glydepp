@@ -19,7 +19,8 @@
     "react-native-safe-area-context": "*",
     "react-native-svg": "*",
     "react-native-worklets": "*",
-    "lucide-react-native": "*"
+    "lucide-react-native": "*",
+    "expo-blur": "*"
   },
   "devDependencies": {
     "expo": "*",

@@ -12,6 +12,7 @@ export { CheckDraw, type CheckDrawProps } from './src/components/CheckDraw';
 export { PulseRing, type PulseRingProps } from './src/components/PulseRing';
 export { ToastProvider, useToast, type ToastOptions, type ToastTone } from './src/components/Toast';
 export { Banner, type BannerProps } from './src/components/Banner';
+export { GlassSurface, StatusIcon, type StatusTone } from './src/components/GlassSurface';
 export { StatusChip, type StatusChipProps } from './src/components/StatusChip';
 export { LocationInput, type LocationField, type LocationInputProps } from './src/components/LocationInput';
 export { BusCard, type BusCardProps } from './src/components/BusCard';
