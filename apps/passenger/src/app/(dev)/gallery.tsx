@@ -1,6 +1,8 @@
 import {
   Banner,
   BusCard,
+  SeatGrid,
+  type SeatCell,
   LocationInput,
   CheckDraw,
   formatGHS,
@@ -51,6 +53,31 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
+// Three rows of the Coaster layout for the gallery.
+const GALLERY_GRID: SeatCell[][] = [
+  [
+    { type: "driver" },
+    { type: "empty" },
+    { type: "aisle" },
+    { type: "empty" },
+    { type: "door" },
+  ],
+  [
+    { type: "seat", no: 1 },
+    { type: "seat", no: 2 },
+    { type: "aisle" },
+    { type: "seat", no: 3 },
+    { type: "seat", no: 4 },
+  ],
+  [
+    { type: "seat", no: 5 },
+    { type: "seat", no: 6 },
+    { type: "aisle" },
+    { type: "seat", no: 7 },
+    { type: "seat", no: 8 },
+  ],
+];
+
 const SAMPLE_FARES = [1250, 1500, 2475, 980, 12000]; // pesewas — sample numbers, not real fares
 
 function GalleryBody({
@@ -74,6 +101,7 @@ function GalleryBody({
   const [selectedCard, setSelectedCard] = useState<number | null>(0);
   const [activeField, setActiveField] = useState<string | null>(null);
   const [extraStop, setExtraStop] = useState(false);
+  const [gallerySeat, setGallerySeat] = useState<number | null>(4);
 
   const toastSamples: Record<ToastTone, { title: string; message: string }> = {
     success: { title: "Payment received", message: "Sample success toast" },
@@ -304,6 +332,23 @@ function GalleryBody({
         ))}
         <GlydeText variant="caption" tone="secondary">
           Sample numbers only — not Glyde fares.
+        </GlydeText>
+      </Section>
+
+      <Section title="SeatGrid">
+        <SeatGrid
+          grid={GALLERY_GRID}
+          stateOf={(n) =>
+            n === gallerySeat
+              ? "selected"
+              : [2, 7, 8].includes(n)
+                ? "unavailable"
+                : "available"
+          }
+          onSeatPress={(n) => setGallerySeat((s) => (s === n ? null : n))}
+        />
+        <GlydeText variant="caption" tone="secondary">
+          Seats 2, 7, 8 are taken: tap one to see the “nope” nudge.
         </GlydeText>
       </Section>
 

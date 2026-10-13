@@ -7,11 +7,11 @@ import {
   SheetHeightProvider,
   space,
   useSheetHeight,
-  useToast,
   type BottomSheetHandle,
   type GlydeMapHandle,
   type SheetSnap,
 } from '@glyde/ui';
+import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
 import { Keyboard, StyleSheet, View } from 'react-native';
@@ -51,7 +51,6 @@ export function HomeScreen() {
 function HomeContent() {
   const map = useRef<GlydeMapHandle>(null);
   const sheet = useRef<BottomSheetHandle>(null);
-  const toast = useToast();
   const { settledHeight } = useSheetHeight();
   const [snap, setSnap] = useState<SheetSnap>('collapsed');
   const [planning, setPlanning] = useState(false);
@@ -161,7 +160,10 @@ function HomeContent() {
                 selectedTripId={selectedTripId}
                 onSelect={(tripId) => {
                   setSelection({ searchKey, tripId }); // highlight immediately (optimistic, DESIGN.md §8.4)
-                  toast.show({ tone: 'info', title: 'Seat selection is next', message: 'Built in the next task.' });
+                  router.push({
+                    pathname: '/seats',
+                    params: { tripId, pickup: pickupStop.id, dropoffs: planner.dropoffIds.join(',') },
+                  });
                 }}
               />
             )}

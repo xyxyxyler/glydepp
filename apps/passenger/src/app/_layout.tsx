@@ -34,6 +34,8 @@ export default function RootLayout() {
               <Stack.Screen name="index" options={{ animation: 'fade' }} />
               <Stack.Screen name="landing" options={{ animation: 'fade' }} />
               <Stack.Screen name="home" options={{ animation: 'fade' }} />
+              {/* Short push from Home's results (DESIGN.md §8.5). */}
+              <Stack.Screen name="seats" options={{ animation: 'slide_from_right' }} />
             </Stack>
           </ToastProvider>
         </ThemeProvider>

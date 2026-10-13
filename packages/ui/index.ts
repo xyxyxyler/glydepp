@@ -15,6 +15,7 @@ export { Banner, type BannerProps } from './src/components/Banner';
 export { StatusChip, type StatusChipProps } from './src/components/StatusChip';
 export { LocationInput, type LocationField, type LocationInputProps } from './src/components/LocationInput';
 export { BusCard, type BusCardProps } from './src/components/BusCard';
+export { SeatGrid, type SeatCell, type SeatGridProps, type SeatVisualState } from './src/components/SeatGrid';
 
 export {
   BottomSheet,
