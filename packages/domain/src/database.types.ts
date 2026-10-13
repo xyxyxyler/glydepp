@@ -171,6 +171,42 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_methods: {
+        Row: {
+          card_brand: string | null
+          card_last4: string | null
+          created_at: string
+          id: string
+          is_default: boolean
+          kind: string
+          momo_network: string | null
+          momo_number: string | null
+          passenger_id: string
+        }
+        Insert: {
+          card_brand?: string | null
+          card_last4?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          kind: string
+          momo_network?: string | null
+          momo_number?: string | null
+          passenger_id: string
+        }
+        Update: {
+          card_brand?: string | null
+          card_last4?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          kind?: string
+          momo_network?: string | null
+          momo_number?: string | null
+          passenger_id?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount_pesewas: number
@@ -607,6 +643,14 @@ export type Database = {
         }
         Returns: string
       }
+      credit_wallet: {
+        Args: {
+          p_amount_pesewas: number
+          p_passenger_id: string
+          p_provider_ref: string
+        }
+        Returns: number
+      }
       hold_seats: {
         Args: { p_pickup_stop_id: string; p_seats: Json; p_trip_id: string }
         Returns: Json
@@ -622,8 +666,13 @@ export type Database = {
         Args: { p_distance_m: number; p_route_code: string }
         Returns: number
       }
+      set_default_payment_method: {
+        Args: { p_method_id: string }
+        Returns: undefined
+      }
       share_ticket: { Args: { p_ticket_id: string }; Returns: string }
       shared_ticket: { Args: { p_token: string }; Returns: Json }
+      top_up_limits: { Args: never; Returns: unknown }
       trip_can_board_at: {
         Args: { p_pickup_idx: number; p_trip_id: string }
         Returns: boolean

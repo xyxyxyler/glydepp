@@ -114,6 +114,19 @@ try {
   assert.equal(balance, 10000 - 1500);
   ok('card decline, then a different method (wallet) succeeds and is deducted');
 
+  r = await fn('pay', { action: 'top_up', amount_pesewas: 5000, method: 'momo', details: { network: 'telecel', phone: '050 123 4567' } }, token);
+  assert.equal(r.status, 'succeeded');
+  assert.equal(r.balance_pesewas, 10000 - 1500 + 5000);
+  r = await fn('pay', { action: 'top_up', amount_pesewas: 400, method: 'card', details: {} }, token);
+  assert.equal(r.status, 'failed');
+  r = await fn('pay', { action: 'top_up', amount_pesewas: 2000, method: 'momo', details: { network: 'mtn', phone: '024 000 0000' } }, token);
+  assert.equal(r.status, 'failed');
+  r = await fn('pay', { action: 'top_up', amount_pesewas: 2000, method: 'wallet' }, token);
+  assert.equal(r.error, 'bad_request');
+  const { data: after } = await client.rpc('my_wallet');
+  assert.equal(after, 10000 - 1500 + 5000);
+  ok('top-up credits the wallet; out-of-range, declined and wallet-to-wallet top-ups are refused');
+
   const h3 = await hold(3);
   await admin.from('payments').update({ expires_at: new Date(Date.now() - 1000).toISOString() }).eq('id', h3.payment_id);
   r = await fn('pay', { payment_id: h3.payment_id, method: 'card', details: {} }, token);

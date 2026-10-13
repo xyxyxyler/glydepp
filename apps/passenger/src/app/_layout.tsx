@@ -46,6 +46,8 @@ export default function RootLayout() {
               {/* Short push from Home's results (DESIGN.md §8.5). */}
               <Stack.Screen name="seats" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="account/edit" options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="payments/add-funds" options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="payments/add-method" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="account/terms" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="account/[topic]" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="payment" options={{ animation: 'slide_from_right' }} />

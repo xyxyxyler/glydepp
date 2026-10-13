@@ -1,4 +1,4 @@
-import { normaliseGhanaPhone } from '@glyde/domain';
+import { formatGhanaPhone, normaliseGhanaPhone } from '@glyde/domain';
 import {
   Banner,
   formatGHS,
@@ -26,11 +26,12 @@ import { useSession } from '@/features/auth/useSession';
 import { payBooking, type MomoNetwork, type PayMethod } from '@/features/booking/pay';
 import { decodePicks, holdErrorMessage, useHold } from '@/features/booking/useHold';
 import { useNetwork } from '@/features/network/useNetwork';
+import { usePaymentMethods } from '@/features/payments/usePaymentMethods';
 import { useSeatMap } from '@/features/seats/useSeatMap';
 import { useNow } from '@/features/time/useNow';
 import { useWallet } from '@/features/wallet/useWallet';
 
-import { TestCardSheet } from './components/TestCardSheet';
+import { TestCardSheet } from '@/components/TestCardSheet';
 
 const NETWORKS: { id: MomoNetwork; label: string }[] = [
   { id: 'mtn', label: 'MTN' },
@@ -57,9 +58,14 @@ export function PaymentScreen() {
 
   const ownPhone =
     session.status === 'signed-in' && session.session.user.phone ? `0${session.session.user.phone.slice(3)}` : '';
-  const [method, setMethod] = useState<PayMethod>('momo');
-  const [momoNetwork, setMomoNetwork] = useState<MomoNetwork>('mtn');
-  const [momoPhone, setMomoPhone] = useState<string | null>(null); // null = use own number
+  // Start from the passenger's default saved method (uix-spec 2.6); anything they pick here wins.
+  const { methods: saved } = usePaymentMethods();
+  const savedDefault = saved?.find((m) => m.isDefault);
+  const [methodChoice, setMethod] = useState<PayMethod | null>(null);
+  const [networkChoice, setMomoNetwork] = useState<MomoNetwork | null>(null);
+  const [momoPhone, setMomoPhone] = useState<string | null>(null); // null = default / own number
+  const method: PayMethod = methodChoice ?? savedDefault?.kind ?? 'momo';
+  const momoNetwork: MomoNetwork = networkChoice ?? savedDefault?.momoNetwork ?? 'mtn';
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
@@ -93,7 +99,9 @@ export function PaymentScreen() {
   const leftS = held ? Math.max(0, Math.ceil((held.expiresAt - now) / 1000)) : null;
   const expired = leftS === 0;
   const walletShort = held && wallet.balance !== null && wallet.balance < held.amountPesewas;
-  const phone = momoPhone ?? ownPhone;
+  const defaultPhone =
+    savedDefault?.kind === 'momo' && savedDefault.momoNumber ? formatGhanaPhone(savedDefault.momoNumber) : ownPhone;
+  const phone = momoPhone ?? defaultPhone;
 
   const pay = async (cardOutcome?: 'approve' | 'decline') => {
     if (!held || processing) return;
@@ -293,7 +301,7 @@ export function PaymentScreen() {
 
       <TestCardSheet
         visible={cardSheet}
-        amountLabel={held ? formatGHS(held.amountPesewas) : ''}
+        headline={held ? `Pay ${formatGHS(held.amountPesewas)}` : ''}
         onClose={() => setCardSheet(false)}
         onResult={(outcome) => void pay(outcome)}
       />

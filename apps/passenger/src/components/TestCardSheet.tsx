@@ -8,12 +8,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
  */
 export function TestCardSheet({
   visible,
-  amountLabel,
+  headline,
+  approveLabel = 'Approve test payment',
   onResult,
   onClose,
 }: {
   visible: boolean;
-  amountLabel: string;
+  /** e.g. "Pay GHS 15.00" or "Save card ··4242". */
+  headline: string;
+  approveLabel?: string;
   onResult: (outcome: 'approve' | 'decline') => void;
   onClose: () => void;
 }) {
@@ -31,8 +34,8 @@ export function TestCardSheet({
         <GlydeText variant="callout" tone="secondary">
           Prototype: this stands in for the payment provider’s secure card page. No card is charged.
         </GlydeText>
-        <GlydeText variant="headline">Pay {amountLabel}</GlydeText>
-        <PrimaryButton label="Approve test payment" onPress={() => onResult('approve')} />
+        <GlydeText variant="headline">{headline}</GlydeText>
+        <PrimaryButton label={approveLabel} onPress={() => onResult('approve')} />
         <SecondaryButton label="Decline (test a failure)" haptic="selection" onPress={() => onResult('decline')} />
       </View>
     </Modal>
