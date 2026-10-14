@@ -50,6 +50,10 @@ export default function RootLayout() {
               <Stack.Screen name="payments/add-method" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="account/terms" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="account/[topic]" options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="account/settings" options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="account/help" options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="account/faqs" options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="account/verification" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="payment" options={{ animation: 'slide_from_right' }} />
               {/* Paid: no swiping back into the payment form. */}
               <Stack.Screen name="payment-success" options={{ animation: 'fade', gestureEnabled: false }} />

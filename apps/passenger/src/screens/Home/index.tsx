@@ -29,6 +29,7 @@ import { useNearestStop } from '@/features/location/useNearestStop';
 import { useNetwork, type Stop } from '@/features/network/useNetwork';
 import { useRecentStops } from '@/features/network/useRecentStops';
 import { useNow } from '@/features/time/useNow';
+import { useProfile } from '@/features/profile/useProfile';
 import { useActiveTrip } from '@/features/trips/useActiveTrip';
 import { useTripOptions } from '@/features/trips/useTripOptions';
 
@@ -73,6 +74,9 @@ function HomeContent() {
   const toast = useToast();
   const now = useNow(15_000);
   const { trip: active, completed, dismissCompleted } = useActiveTrip();
+  // Settings → Trip alerts (default on until the profile has loaded).
+  const { state: profileState } = useProfile();
+  const alertsOn = profileState.status !== 'ready' || profileState.profile?.notify_trip_alerts !== false;
 
   const buses = useLiveBuses();
   const { permission, openSettings } = useLocationPermission();
@@ -151,13 +155,14 @@ function HomeContent() {
   useEffect(() => {
     if (!approaching || !active || alertedFor.current === active.tripId) return;
     alertedFor.current = active.tripId;
+    if (!alertsOn) return;
     hapticFor('approaching');
     toast.show({
       tone: 'warning',
       title: `Bus approaching ${active.pickup.name}`,
       message: 'Head to the stop and have your ticket ready.',
     });
-  }, [approaching, active, toast]);
+  }, [approaching, active, toast, alertsOn]);
 
   // On board: "Approaching [drop-off]" once the bus leaves the stop before it (decision 2026-10-14).
   const stopBeforeDropoff = active?.boarded
@@ -173,25 +178,27 @@ function HomeContent() {
     const key = `${active.tripId}:dropoff`;
     if (alertedFor.current === key) return;
     alertedFor.current = key;
+    if (!alertsOn) return;
     hapticFor('approaching');
     toast.show({
       tone: 'warning',
       title: `Approaching ${active.dropoffs[0].name}`,
       message: 'Your stop is next. Get ready to alight.',
     });
-  }, [nearDropoff, active, toast]);
+  }, [nearDropoff, active, toast, alertsOn]);
 
   // Drop-off: the trip ends automatically (uix-spec 2.5) — arrival alert + completion card.
   const completedKey = completed?.paymentId ?? null;
   useEffect(() => {
     if (!completed) return;
+    sheet.current?.snapTo('half');
+    if (!alertsOn) return;
     hapticFor('arrived');
     toast.show({
       tone: 'success',
       title: `Arrived at ${completed.dropoffs[0].name}`,
       message: 'Thanks for riding with Glyde.',
     });
-    sheet.current?.snapTo('half');
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once per completed trip
   }, [completedKey]);
 

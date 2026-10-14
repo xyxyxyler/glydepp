@@ -18,6 +18,7 @@ if (!CODE) throw new Error('TEST_OTP_CODE missing from .env.local');
 const PHONE_INPUT = '020 000 0001'; // test-only number
 const PHONE = '+233200000001';
 const EMAIL = 'otp-check@glyde.invalid';
+const LINK_EMAIL = 'otp-link@glyde.invalid';
 
 async function call(body: Record<string, unknown>) {
   const res = await fetch(`${url}/functions/v1/auth-otp`, {
@@ -29,10 +30,10 @@ async function call(body: Record<string, unknown>) {
 }
 
 async function cleanup() {
-  await admin.from('otp_requests').delete().in('identifier', [PHONE, EMAIL]);
+  await admin.from('otp_requests').delete().in('identifier', [PHONE, EMAIL, LINK_EMAIL]);
   const { data } = await admin.auth.admin.listUsers({ perPage: 1000 });
   for (const u of data?.users ?? []) {
-    if (u.phone === PHONE.slice(1) || u.email === EMAIL || u.email?.startsWith('phone-233200000001@')) {
+    if (u.phone === PHONE.slice(1) || u.email === EMAIL || u.email === LINK_EMAIL || u.email?.startsWith('phone-233200000001@')) {
       await admin.auth.admin.deleteUser(u.id);
     }
   }
@@ -107,6 +108,23 @@ try {
     await call({ action: 'request', channel: 'email', identifier: EMAIL });
     const r = await call({ action: 'verify', channel: 'email', identifier: EMAIL, code: CODE });
     assert.ok(r.body.access_token, JSON.stringify(r.body));
+  });
+  await check('a signed-in phone user can link and verify an email', async () => {
+    await call({ action: 'request', channel: 'phone', identifier: PHONE });
+    const session = await call({ action: 'verify', channel: 'phone', identifier: PHONE, code: CODE });
+    await admin.from('otp_requests').delete().eq('identifier', LINK_EMAIL);
+    await call({ action: 'request', channel: 'email', identifier: LINK_EMAIL });
+    const res = await fetch(`${url}/functions/v1/auth-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: publishable, Authorization: `Bearer ${session.body.access_token}` },
+      body: JSON.stringify({ action: 'link_email', channel: 'email', identifier: LINK_EMAIL, code: CODE }),
+    });
+    const body = (await res.json()) as Record<string, unknown>;
+    assert.equal(body.ok, true, JSON.stringify(body));
+    const { data } = await admin.auth.admin.listUsers({ perPage: 1000 });
+    const user = data.users.find((u) => u.phone === PHONE.slice(1));
+    assert.equal(user?.email, LINK_EMAIL);
+    assert.ok(user?.email_confirmed_at);
   });
   console.log(`\n${passed}/${passed} passed`);
 } finally {

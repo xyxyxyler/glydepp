@@ -269,12 +269,16 @@ export type Database = {
           created_at: string
           first_name: string
           id: string
+          language: string
           last_name: string
+          notify_offers: boolean
+          notify_trip_alerts: boolean
           onboarded_at: string | null
           residential_area: string
           terms_accepted_at: string | null
           terms_version: string | null
           updated_at: string
+          use_areas_for_planning: boolean
           work_location: string
         }
         Insert: {
@@ -282,12 +286,16 @@ export type Database = {
           created_at?: string
           first_name: string
           id: string
+          language?: string
           last_name: string
+          notify_offers?: boolean
+          notify_trip_alerts?: boolean
           onboarded_at?: string | null
           residential_area: string
           terms_accepted_at?: string | null
           terms_version?: string | null
           updated_at?: string
+          use_areas_for_planning?: boolean
           work_location: string
         }
         Update: {
@@ -295,12 +303,16 @@ export type Database = {
           created_at?: string
           first_name?: string
           id?: string
+          language?: string
           last_name?: string
+          notify_offers?: boolean
+          notify_trip_alerts?: boolean
           onboarded_at?: string | null
           residential_area?: string
           terms_accepted_at?: string | null
           terms_version?: string | null
           updated_at?: string
+          use_areas_for_planning?: boolean
           work_location?: string
         }
         Relationships: []
@@ -438,6 +450,44 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      support_requests: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          message: string
+          passenger_id: string
+          payment_id: string | null
+          status: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          message: string
+          passenger_id: string
+          payment_id?: string | null
+          status?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          message?: string
+          passenger_id?: string
+          payment_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_requests_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ticket_shares: {
         Row: {

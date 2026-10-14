@@ -96,11 +96,25 @@ export function useProfile() {
     return 'ok';
   }, [userId]);
 
+  /** Account settings (uix-spec 2.8): language, notification and privacy preferences. */
+  const updateSettings = useCallback(
+    async (
+      patch: Partial<Pick<Profile, 'language' | 'notify_trip_alerts' | 'notify_offers' | 'use_areas_for_planning'>>,
+    ): Promise<'ok' | 'offline' | 'error'> => {
+      if (!userId) return 'error';
+      const { data, error } = await supabase.from('profiles').update(patch).eq('id', userId).select('*').single();
+      if (error) return /fetch|network/i.test(error.message) ? 'offline' : 'error';
+      setLoaded({ userId, profile: data, loadFailed: false });
+      return 'ok';
+    },
+    [userId],
+  );
+
   let state: ProfileState;
   if (session.status === 'loading') state = { status: 'loading' };
   else if (!userId) state = { status: 'signed-out' };
   else if (!loaded || loaded.userId !== userId) state = { status: 'loading' };
   else state = { status: 'ready', ...loaded };
 
-  return { state, save, acceptTerms, completeOnboarding };
+  return { state, save, acceptTerms, completeOnboarding, updateSettings };
 }

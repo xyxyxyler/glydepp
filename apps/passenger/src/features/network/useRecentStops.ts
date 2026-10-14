@@ -29,5 +29,13 @@ export function useRecentStops() {
       return next;
     });
   }, []);
-  return { recent, remember };
+  const clear = useCallback(() => {
+    setRecent([]);
+    try {
+      localStorage.removeItem(KEY);
+    } catch {
+      // Storage unavailable: nothing was saved.
+    }
+  }, []);
+  return { recent, remember, clear };
 }

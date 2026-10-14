@@ -1,15 +1,30 @@
 import { functionsUrl, publishableKey, supabase } from '@/lib/supabase';
 
 export type OtpChannel = 'phone' | 'email';
-export type OtpError = 'invalid_identifier' | 'too_soon' | 'invalid_code' | 'expired' | 'too_many_attempts' | 'network' | 'server';
+export type OtpError =
+  | 'invalid_identifier'
+  | 'too_soon'
+  | 'invalid_code'
+  | 'expired'
+  | 'too_many_attempts'
+  | 'email_in_use'
+  | 'network'
+  | 'server';
 
 type Result<T> = { ok: true; value: T } | { ok: false; error: OtpError; retryAfterS?: number; attemptsLeft?: number };
 
-async function call(body: Record<string, unknown>): Promise<{ status: number; body: Record<string, unknown> } | null> {
+async function call(
+  body: Record<string, unknown>,
+  accessToken?: string,
+): Promise<{ status: number; body: Record<string, unknown> } | null> {
   try {
     const res = await fetch(`${functionsUrl}/auth-otp`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', apikey: publishableKey },
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: publishableKey,
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
       body: JSON.stringify(body),
     });
     return { status: res.status, body: (await res.json()) as Record<string, unknown> };
@@ -19,7 +34,14 @@ async function call(body: Record<string, unknown>): Promise<{ status: number; bo
 }
 
 function failure(body: Record<string, unknown>): Result<never> {
-  const known: OtpError[] = ['invalid_identifier', 'too_soon', 'invalid_code', 'expired', 'too_many_attempts'];
+  const known: OtpError[] = [
+    'invalid_identifier',
+    'too_soon',
+    'invalid_code',
+    'expired',
+    'too_many_attempts',
+    'email_in_use',
+  ];
   const error = known.includes(body.error as OtpError) ? (body.error as OtpError) : 'server';
   return {
     ok: false,
@@ -54,6 +76,15 @@ export async function verifyCode(
   return { ok: true, value: { newUser: r.body.new_user === true } };
 }
 
+/** Attach a verified email to the signed-in account (Account → Verification). */
+export async function linkEmail(email: string, code: string): Promise<Result<{ email: string }>> {
+  const { data } = await supabase.auth.getSession();
+  const r = await call({ action: 'link_email', channel: 'email', identifier: email, code }, data.session?.access_token);
+  if (!r) return { ok: false, error: 'network' };
+  if (r.body.ok) return { ok: true, value: { email } };
+  return failure(r.body);
+}
+
 /** Plain-language messages (DESIGN.md §11: never a raw error code). */
 export function otpErrorMessage(e: OtpError, extra?: { retryAfterS?: number; attemptsLeft?: number }): string {
   switch (e) {
@@ -69,6 +100,8 @@ export function otpErrorMessage(e: OtpError, extra?: { retryAfterS?: number; att
       return 'This code has expired. Tap Resend Code to get a new one.';
     case 'too_many_attempts':
       return 'Too many wrong tries. Tap Resend Code to get a new one.';
+    case 'email_in_use':
+      return 'That email is already used by another Glyde account.';
     case 'network':
       return 'You’re offline. Check your connection and try again.';
     default:

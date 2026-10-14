@@ -6,6 +6,7 @@
 // POST { action: 'request', channel: 'phone' | 'email', identifier }
 //   → { ok: true, resendAfterS, expiresInS }
 // POST { action: 'verify', channel, identifier, code }
+// POST { action: 'link_email', channel: 'email', identifier, code } + Authorization → { ok, email }
 //   → { access_token, refresh_token } | { error: 'invalid_code' | 'expired' | 'too_many_attempts' | ... }
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
@@ -108,6 +109,28 @@ Deno.serve(async (req) => {
       refresh_token: data.session.refresh_token,
       new_user: !created.error,
     });
+  }
+
+  // ── link_email: verify a code for an email and attach it to the CALLER's account ──
+  // (Account → Verification. Signing in with the email instead would create a second account.)
+  if (body.action === 'link_email') {
+    if (channel !== 'email') return json({ error: 'bad_request' }, 400);
+    const jwt = req.headers.get('Authorization')?.replace(/^Bearer\s+/i, '') ?? '';
+    const { data: auth } = await admin.auth.getUser(jwt);
+    if (!auth?.user) return json({ error: 'not_signed_in' }, 401);
+    const { data: request } = await admin.from('otp_requests').select('*').eq('identifier', identifier).maybeSingle();
+    if (!request || Date.now() - Date.parse(request.requested_at) > CODE_TTL_S * 1000) return json({ error: 'expired' }, 400);
+    if (request.attempts >= MAX_ATTEMPTS) return json({ error: 'too_many_attempts' }, 400);
+    if ((body.code ?? '').trim() !== testCode) {
+      await admin.from('otp_requests').update({ attempts: request.attempts + 1 }).eq('identifier', identifier);
+      return json({ error: 'invalid_code', attemptsLeft: MAX_ATTEMPTS - request.attempts - 1 }, 400);
+    }
+    const { error } = await admin.auth.admin.updateUserById(auth.user.id, { email: identifier, email_confirm: true });
+    if (error) {
+      return json({ error: /already|registered|exists/i.test(error.message) ? 'email_in_use' : 'server' }, 400);
+    }
+    await admin.from('otp_requests').delete().eq('identifier', identifier);
+    return json({ ok: true, email: identifier });
   }
 
   return json({ error: 'bad_request' }, 400);
