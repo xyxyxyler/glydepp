@@ -24,6 +24,8 @@ export type LiveBusesState = {
   retry: () => void;
 };
 
+let channelSeq = 0;
+
 /** Glide window bounds: never snap (min), never crawl after a long gap (max). */
 const MIN_INTERVAL_MS = 500;
 const MAX_INTERVAL_MS = 10_000;
@@ -118,7 +120,9 @@ export function useLiveBuses(): LiveBusesState {
     };
 
     const channel = supabase
-      .channel(`live-buses-${attempt}`)
+      // Unique per subscription: removeChannel is async, and Supabase returns an existing channel for a
+      // repeated name (adding listeners to it after subscribe() throws).
+      .channel(`live-buses-${++channelSeq}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'bus_positions' }, (msg) => {
         const row = msg.new as PositionRow;
         if (!row?.trip_id) return;
