@@ -14,13 +14,15 @@ type Props = {
   quiet?: boolean;
   /** Featured promotion coupon (uix-spec 2.9 NB), shown when nothing more urgent is. */
   promo?: ReactNode;
+  /** Missed bookings that can still be moved (uix-spec 2.10). */
+  missed?: { pickup: string; onMove: () => void } | null;
 };
 
 /**
  * Everything pinned over the top of the map (DESIGN.md §11 states). Banners for things the
  * user can act on; one quiet chip for loading / empty.
  */
-export function HomeStatus({ buses, permission, onOpenSettings, quiet = false, promo }: Props) {
+export function HomeStatus({ buses, permission, onOpenSettings, quiet = false, promo, missed }: Props) {
   const insets = useSafeAreaInsets();
   return (
     <View pointerEvents="box-none" style={[styles.stack, { top: insets.top + space.xs }]}>
@@ -40,6 +42,14 @@ export function HomeStatus({ buses, permission, onOpenSettings, quiet = false, p
       {!quiet && buses.status === 'loading' && <StatusChip label="Finding buses…" />}
       {!quiet && buses.status === 'ready' && buses.live && buses.buses.length === 0 && (
         <StatusChip label="No buses running right now" />
+      )}
+      {missed && (
+        <Banner
+          tone="danger"
+          message={`You missed your bus at ${missed.pickup}. You can move this booking to a later bus today.`}
+          actionLabel="Move"
+          onAction={missed.onMove}
+        />
       )}
       {promo}
     </View>

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import type { NearestStop } from '@/features/location/useNearestStop';
+import type { Stop } from '@/features/network/useNetwork';
 import type { FieldId, TripPlanner } from '../hooks/useTripPlanner';
 
 import { Suggestions } from './Suggestions';
@@ -11,6 +12,7 @@ type Props = {
   planner: TripPlanner;
   nearest: NearestStop | null;
   recentIds: string[];
+  saved?: { label: 'Home' | 'Work'; stop: Stop }[];
   onChosen: (stopId: string) => void;
   /** A field started editing: the sheet should be full so the keyboard doesn't cover it. */
   onEditStart: () => void;
@@ -19,7 +21,7 @@ type Props = {
 };
 
 /** uix-spec 2.3 Trip Search: pickup + drop-off(s) with '+', suggestions while a field is active. */
-export function TripSearch({ planner, nearest, recentIds, onChosen, onEditStart, children }: Props) {
+export function TripSearch({ planner, nearest, recentIds, saved, onChosen, onEditStart, children }: Props) {
   const name = (id: string | undefined) => (id ? (planner.stopById.get(id)?.name ?? '') : '');
 
   const fields: LocationField[] = [
@@ -66,6 +68,7 @@ export function TripSearch({ planner, nearest, recentIds, onChosen, onEditStart,
           query={planner.query}
           candidates={planner.candidates}
           recentIds={recentIds}
+          saved={saved}
           nearest={planner.active === 'pickup' ? nearest : null}
           onChoose={(stop, via) => {
             planner.choose(stop, via);

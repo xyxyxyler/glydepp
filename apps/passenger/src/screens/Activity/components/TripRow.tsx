@@ -18,7 +18,16 @@ const STATUS: Record<TripStatus, { label: string; tone: 'success' | 'warning' | 
 const METHOD: Record<string, string> = { wallet: 'Glyde Wallet', momo: 'Mobile Money', card: 'Card' };
 
 /** uix-spec 2.7 trip entry: route, date and time, fare paid, status; tap to expand. */
-export function TripRow({ trip, onViewTicket }: { trip: ActivityTrip; onViewTicket?: () => void }) {
+export function TripRow({
+  trip,
+  onViewTicket,
+  onMove,
+}: {
+  trip: ActivityTrip;
+  onViewTicket?: () => void;
+  /** Missed today with moves left → move to a later bus. */
+  onMove?: () => void;
+}) {
   const { colors } = useTheme();
   const [open, setOpen] = useState(false);
   const s = STATUS[trip.status];
@@ -67,6 +76,14 @@ export function TripRow({ trip, onViewTicket }: { trip: ActivityTrip; onViewTick
             mono
           />
           <Line label="Paid with" value={METHOD[trip.method ?? ''] ?? '—'} />
+          {trip.status === 'missed' && (
+            <GlydeText variant="caption" tone="secondary">
+              {onMove
+                ? `Missed — you can move it to a later bus today (${2 - trip.deferrals} of 2 moves left).`
+                : 'Missed — this booking can no longer be moved or refunded.'}
+            </GlydeText>
+          )}
+          {onMove && <SecondaryButton label="Move to a later bus" haptic="selection" onPress={onMove} />}
           {onViewTicket && <SecondaryButton label="View Ticket" haptic="selection" onPress={onViewTicket} />}
         </Animated.View>
       )}

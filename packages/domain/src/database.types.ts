@@ -624,6 +624,7 @@ export type Database = {
       tickets: {
         Row: {
           created_at: string
+          deferral_count: number
           dropoff_idx: number
           fare_pesewas: number
           hold_expires_at: string | null
@@ -639,6 +640,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deferral_count?: number
           dropoff_idx: number
           fare_pesewas: number
           hold_expires_at?: string | null
@@ -654,6 +656,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deferral_count?: number
           dropoff_idx?: number
           fare_pesewas?: number
           hold_expires_at?: string | null
@@ -677,6 +680,32 @@ export type Database = {
           },
           {
             foreignKeyName: "tickets_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trip_stop_arrivals: {
+        Row: {
+          arrived_at: string
+          stop_idx: number
+          trip_id: string
+        }
+        Insert: {
+          arrived_at?: string
+          stop_idx: number
+          trip_id: string
+        }
+        Update: {
+          arrived_at?: string
+          stop_idx?: number
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_stop_arrivals_trip_id_fkey"
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"
@@ -811,12 +840,18 @@ export type Database = {
         }
         Returns: number
       }
+      defer_booking: {
+        Args: { p_new_trip_id: string; p_payment_id: string }
+        Returns: Json
+      }
       hold_seats: {
         Args: { p_pickup_stop_id: string; p_seats: Json; p_trip_id: string }
         Returns: Json
       }
+      max_deferrals: { Args: never; Returns: number }
       my_wallet: { Args: never; Returns: number }
       new_ticket_code: { Args: never; Returns: string }
+      pickup_wait: { Args: never; Returns: string }
       record_payment_failure: {
         Args: { p_method: string; p_payment_id: string; p_reason: string }
         Returns: undefined
@@ -847,6 +882,7 @@ export type Database = {
           dropoff_distance_m: number
           dropoff_idx: number
           free_flow_s: number
+          is_last: boolean
           passed: boolean
           pickup_distance_m: number
           pickup_idx: number

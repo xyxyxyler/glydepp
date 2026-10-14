@@ -20,6 +20,8 @@ export type ActivityTrip = {
   plate: string;
   status: TripStatus;
   tickets: { code: string; seatNo: number }[];
+  /** Deferments already used on this booking (max 2). */
+  deferrals: number;
 };
 
 export type ActivityState =
@@ -61,7 +63,7 @@ export function useActivity(): ActivityState {
       void supabase
         .from('payments')
         .select(
-          'id, amount_pesewas, method, paid_at, tickets(ticket_code, seat_no, status, pickup_idx, dropoff_idx), trips(status, departs_at, buses(plate), routes(route_stops(stop_idx, stops(name))))',
+          'id, amount_pesewas, method, paid_at, tickets(ticket_code, seat_no, status, pickup_idx, dropoff_idx, deferral_count), trips(status, departs_at, buses(plate), routes(route_stops(stop_idx, stops(name))))',
         )
         .eq('status', 'succeeded')
         .order('paid_at', { ascending: false })
@@ -104,6 +106,7 @@ export function useActivity(): ActivityState {
                   p.trips!.status,
                   departsAt,
                 ),
+                deferrals: Math.max(0, ...p.tickets.map((t) => t.deferral_count)),
                 tickets: p.tickets
                   .map((t) => ({ code: t.ticket_code, seatNo: t.seat_no }))
                   .sort((a, b) => a.seatNo - b.seatNo),

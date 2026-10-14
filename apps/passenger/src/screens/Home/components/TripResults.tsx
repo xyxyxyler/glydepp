@@ -111,6 +111,7 @@ export function TripResults({ route, pickup, dropoffs, options, fareRules, selec
                 warning={seatWarning(o.seatsFree)}
                 farePesewas={totalFare(o.journeyDistancesM, fareRules)}
                 selected={o.tripId === selectedTripId}
+                lastBus={o.isLast}
                 onPress={() => onSelect(o.tripId)}
               />
             </Animated.View>

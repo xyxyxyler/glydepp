@@ -1,5 +1,5 @@
 import { GlydeText, hapticFor, motion, radius, size, space, stagger, useTheme } from '@glyde/ui';
-import { Clock, LocateFixed, MapPin } from 'lucide-react-native';
+import { BriefcaseBusiness, Clock, House, LocateFixed, MapPin } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
@@ -13,11 +13,13 @@ type Props = {
   recentIds: string[];
   /** Offered for the pickup field only, when location is available. */
   nearest: NearestStop | null;
+  /** Saved places from the profile (Home / Work) that match a Glyde stop. */
+  saved?: { label: 'Home' | 'Work'; stop: Stop }[];
   onChoose: (stop: Stop, viaCurrentLocation?: boolean) => void;
 };
 
 /** "Current location", recent history, then stops matching the typed text (uix-spec 2.3). */
-export function Suggestions({ query, candidates, recentIds, nearest, onChoose }: Props) {
+export function Suggestions({ query, candidates, recentIds, nearest, saved = [], onChoose }: Props) {
   const reduceMotion = useReducedMotion();
   const q = query.trim().toLowerCase();
   const allowed = new Set(candidates.map((c) => c.id));
@@ -39,6 +41,23 @@ export function Suggestions({ query, candidates, recentIds, nearest, onChoose }:
         />
       ),
     });
+  }
+  if (!q) {
+    saved
+      .filter((x) => allowed.has(x.stop.id))
+      .forEach((x) =>
+        rows.push({
+          key: `saved-${x.label}`,
+          node: (
+            <Row
+              icon={x.label === 'Home' ? 'home' : 'work'}
+              title={x.label}
+              subtitle={x.stop.name}
+              onPress={() => onChoose(x.stop)}
+            />
+          ),
+        }),
+      );
   }
   recents.forEach((s) =>
     rows.push({ key: `r-${s.id}`, node: <Row icon="recent" title={s.name} onPress={() => onChoose(s)} /> }),
@@ -79,13 +98,13 @@ function Row({
   subtitle,
   onPress,
 }: {
-  icon: 'locate' | 'recent' | 'stop';
+  icon: 'locate' | 'recent' | 'stop' | 'home' | 'work';
   title: string;
   subtitle?: string;
   onPress: () => void;
 }) {
   const { colors } = useTheme();
-  const Icon = icon === 'locate' ? LocateFixed : icon === 'recent' ? Clock : MapPin;
+  const Icon = { locate: LocateFixed, recent: Clock, stop: MapPin, home: House, work: BriefcaseBusiness }[icon];
   return (
     <Pressable
       accessibilityRole="button"

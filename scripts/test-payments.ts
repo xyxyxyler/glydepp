@@ -20,6 +20,7 @@ const admin = createClient<Database>(url, process.env.SUPABASE_SECRET_KEY as str
 
 const PHONE = '+233200000002'; // test-only
 let tripId = '';
+let laterTripId = '';
 let promoId = '';
 
 async function fn(name: string, body: unknown, token?: string) {
@@ -41,6 +42,12 @@ async function signIn(): Promise<{ client: SupabaseClient<Database>; token: stri
 }
 
 async function cleanup() {
+  if (laterTripId) {
+    const { data: pays } = await admin.from('payments').select('id').eq('trip_id', laterTripId);
+    await admin.from('tickets').delete().eq('trip_id', laterTripId);
+    for (const p of pays ?? []) await admin.from('payments').update({ trip_id: tripId }).eq('id', p.id);
+    await admin.from('trips').delete().eq('id', laterTripId);
+  }
   if (promoId) {
     await admin.from('promotion_redemptions').delete().eq('promotion_id', promoId);
     await admin.from('payments').update({ promotion_id: null }).eq('promotion_id', promoId);
@@ -181,6 +188,38 @@ try {
   const hp2 = (await hold(5)) as { discount_pesewas?: number };
   assert.equal(hp2.discount_pesewas, 0);
   ok('a promotion discounts the server price, is counted once paid, and is not reused');
+
+  // Missed pickup → absent after 3 min → passenger moves it to a later bus (deferment).
+  const hm = await hold(6);
+  r = await fn('pay', { payment_id: hm.payment_id, method: 'card', details: {} }, token);
+  assert.equal(r.status, 'succeeded');
+  const { data: ridge } = await admin
+    .from('route_stops')
+    .select('stop_idx, distance_m, stops!inner(name)')
+    .eq('route_id', route!.id)
+    .eq('stops.name', 'Ridge')
+    .single();
+  await admin.from('bus_positions').upsert({ trip_id: tripId, latitude: 5.56, longitude: -0.19, distance_m: ridge!.distance_m });
+  await admin
+    .from('trip_stop_arrivals')
+    .update({ arrived_at: new Date(Date.now() - 4 * 60_000).toISOString() })
+    .eq('trip_id', tripId)
+    .eq('stop_idx', ridge!.stop_idx);
+  await admin.from('bus_positions').update({ distance_m: ridge!.distance_m + 1 }).eq('trip_id', tripId);
+  const { data: missed } = await client.from('tickets').select('status').eq('payment_id', hm.payment_id).single();
+  assert.equal(missed!.status, 'absent');
+  const { data: later } = await admin
+    .from('trips')
+    .insert({ route_id: route!.id, bus_id: bus!.id, departs_at: new Date(Date.now() + 90 * 60_000).toISOString() })
+    .select('id')
+    .single();
+  laterTripId = later!.id;
+  const moved = await client.rpc('defer_booking', { p_payment_id: hm.payment_id, p_new_trip_id: laterTripId });
+  if (moved.error) throw moved.error;
+  const { data: rebooked } = await client.from('tickets').select('status, trip_id, deferral_count').eq('payment_id', hm.payment_id).single();
+  assert.deepEqual(rebooked, { status: 'reserved', trip_id: laterTripId, deferral_count: 1 });
+  await admin.from('bus_positions').delete().eq('trip_id', tripId);
+  ok('unscanned 3 min after the bus arrives → absent; the passenger moves it to a later bus');
 
   const h3 = await hold(3);
   await admin.from('payments').update({ expires_at: new Date(Date.now() - 1000).toISOString() }).eq('id', h3.payment_id);

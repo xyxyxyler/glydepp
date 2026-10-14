@@ -21,6 +21,10 @@ export type BusCardProps = {
   farePesewas: number | null;
   selected: boolean;
   onPress: () => void;
+  /** uix-spec 2.10: the day's final bus on this route — a distinct chip. */
+  lastBus?: boolean;
+  /** Replaces the fare (e.g. "No charge" when moving a missed booking). */
+  fareLabel?: string;
 };
 
 const WARNING_LABEL = { 'last-seats': 'Last seats available', 'almost-full': 'Almost full' } as const;
@@ -29,7 +33,17 @@ const WARNING_LABEL = { 'last-seats': 'Last seats available', 'almost-full': 'Al
  * DESIGN.md §7 BusCard (uix-spec 2.3 Available Buses): bus icon left; ETA + seats centre; fare
  * right. Selected: 2px brand border + brand tint, applied immediately (optimistic, §8.4).
  */
-export function BusCard({ etaMinutes, detail, seatsFree, warning, farePesewas, selected, onPress }: BusCardProps) {
+export function BusCard({
+  etaMinutes,
+  detail,
+  seatsFree,
+  warning,
+  farePesewas,
+  selected,
+  onPress,
+  lastBus = false,
+  fareLabel: fareOverride,
+}: BusCardProps) {
   const { colors } = useTheme();
   const reduceMotion = useReducedMotion();
   const press = usePressScale();
@@ -42,13 +56,13 @@ export function BusCard({ etaMinutes, detail, seatsFree, warning, farePesewas, s
     }),
   }));
   const seatsLabel = `${seatsFree} ${seatsFree === 1 ? 'seat' : 'seats'} left`;
-  const fareLabel = farePesewas === null ? 'Fare pending' : formatGHS(farePesewas);
+  const fareLabel = fareOverride ?? (farePesewas === null ? 'Fare pending' : formatGHS(farePesewas));
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ selected }}
-      accessibilityLabel={`${etaMinutes === null ? '' : `Arrives in ${etaMinutes} minutes. `}${detail}. ${seatsLabel}. ${fareLabel}.`}
+      accessibilityLabel={`${lastBus ? 'Last bus. ' : ''}${etaMinutes === null ? '' : `Arrives in ${etaMinutes} minutes. `}${detail}. ${seatsLabel}. ${fareLabel}.`}
       onPressIn={press.onPressIn}
       onPressOut={press.onPressOut}
       onPress={() => {
@@ -75,10 +89,17 @@ export function BusCard({ etaMinutes, detail, seatsFree, warning, farePesewas, s
               {seatsLabel}
             </GlydeText>
           </View>
-          {warning && <StatusChip label={WARNING_LABEL[warning]} tone="warning" style={styles.chip} />}
+          {(warning || lastBus) && (
+            <View style={styles.chips}>
+              {lastBus && <StatusChip label="Last bus" tone="info" />}
+              {warning && <StatusChip label={WARNING_LABEL[warning]} tone="warning" />}
+            </View>
+          )}
         </View>
         <View style={styles.fare}>
-          {farePesewas === null ? (
+          {fareOverride ? (
+            <GlydeText variant="callout">{fareOverride}</GlydeText>
+          ) : farePesewas === null ? (
             <GlydeText variant="callout" tone="secondary">
               Fare pending
             </GlydeText>
@@ -110,6 +131,6 @@ const styles = StyleSheet.create({
   },
   centre: { flex: 1, gap: space.xxs },
   seats: { flexDirection: 'row', alignItems: 'center', gap: space.xxs },
-  chip: { alignSelf: 'flex-start', marginTop: space.xxs },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xxs, marginTop: space.xxs },
   fare: { alignItems: 'flex-end' },
 });

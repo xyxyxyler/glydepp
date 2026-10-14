@@ -20,6 +20,8 @@ export type TripOption = {
   /** Fewest seats free across the journeys. */
   seatsFree: number;
   passed: boolean;
+  /** The day's final bus on this route (uix-spec 2.10). */
+  isLast: boolean;
 };
 
 export type TripOptionsState =
@@ -80,6 +82,7 @@ export function useTripOptions(pickupId: string | null, dropoffIds: string[]): T
           journeyDistancesM: all.map((r) => r.dropoff_distance_m - r.pickup_distance_m),
           seatsFree: Math.min(...all.map((r) => r.seats_free)),
           passed: row.passed,
+          isLast: row.is_last,
         });
       }
       const bookable = options.filter((o) => !o.passed && o.seatsFree >= dropoffs.length);

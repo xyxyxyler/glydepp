@@ -91,7 +91,15 @@ export function ActivityScreen() {
                   {d.label}
                 </GlydeText>
                 {d.trips.map((t) => (
-                  <TripRow key={t.paymentId} trip={t} />
+                  <TripRow
+                    key={t.paymentId}
+                    trip={t}
+                    onMove={
+                      t.status === 'missed' && t.deferrals < 2 && accraDayKey(t.departsAt) === accraDayKey(Date.now())
+                        ? () => router.push({ pathname: '/reschedule', params: { paymentId: t.paymentId } })
+                        : undefined
+                    }
+                  />
                 ))}
               </View>
             ))}

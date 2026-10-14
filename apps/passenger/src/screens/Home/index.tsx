@@ -18,7 +18,7 @@ import {
 } from '@glyde/ui';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Keyboard, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
@@ -33,6 +33,7 @@ import { useRecentStops } from '@/features/network/useRecentStops';
 import { useNow } from '@/features/time/useNow';
 import { useProfile } from '@/features/profile/useProfile';
 import { usePromotions } from '@/features/promotions/usePromotions';
+import { useMissedToday } from '@/features/booking/useMissedToday';
 import { useActiveTrip } from '@/features/trips/useActiveTrip';
 import { useTripOptions } from '@/features/trips/useTripOptions';
 
@@ -78,6 +79,7 @@ function HomeContent() {
   const now = useNow(15_000);
   const { trip: active, completed, dismissCompleted } = useActiveTrip();
   const { featured, dismiss: dismissPromo } = usePromotions();
+  const missedToday = useMissedToday();
   const { colors } = useTheme();
   // Settings → Trip alerts (default on until the profile has loaded).
   const { state: profileState } = useProfile();
@@ -88,6 +90,16 @@ function HomeContent() {
   const { onMapReady } = useHomeCamera(map, permission);
   const { network, error: networkError, retry: retryNetwork } = useNetwork();
   const planner = useTripPlanner(network);
+  // Saved places (uix-spec 2.3): profile areas that match a Glyde stop, if the passenger allows it.
+  const profileRow = profileState.status === 'ready' ? profileState.profile : null;
+  const savedPlaces = useMemo(() => {
+    if (!profileRow?.use_areas_for_planning || !network) return [];
+    const match = (area: string) => network.stops.find((s) => s.name.toLowerCase() === area.trim().toLowerCase());
+    return [
+      { label: 'Home' as const, stop: match(profileRow.residential_area) },
+      { label: 'Work' as const, stop: match(profileRow.work_location) },
+    ].filter((x): x is { label: 'Home' | 'Work'; stop: Stop } => !!x.stop);
+  }, [profileRow, network]);
   const { recent, remember } = useRecentStops();
   const nearest = useNearestStop(network?.stops ?? null, permission);
   const options = useTripOptions(planner.complete ? (planner.pickup?.stopId ?? null) : null, planner.dropoffIds);
@@ -259,6 +271,14 @@ function HomeContent() {
         permission={permission}
         onOpenSettings={openSettings}
         quiet={showActive}
+        missed={
+          missedToday[0] && !showActive
+            ? {
+                pickup: missedToday[0].pickup,
+                onMove: () => router.push({ pathname: '/reschedule', params: { paymentId: missedToday[0].paymentId } }),
+              }
+            : null
+        }
         promo={
           featured && !showActive && !planning && !completed ? (
             <PromoCard
@@ -323,6 +343,7 @@ function HomeContent() {
             planner={planner}
             nearest={nearest}
             recentIds={recent}
+            saved={savedPlaces}
             onChosen={(id) => remember(id)}
             onEditStart={() => {
               if (snap !== 'full') sheet.current?.snapTo('full');
