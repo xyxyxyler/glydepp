@@ -6,14 +6,14 @@ import { Image, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import { useSession } from '@/features/auth/useSession';
+import { useDriverOnboarding } from '@/features/onboarding/useDriverOnboarding';
 
 const logo = require('@/assets/images/glyde-logo.png');
 const LOGO_HEIGHT = splash.logoWidth / splash.logoAspect;
 
 /** uix-spec 3.1 Driver Splash — identical in structure to the passenger splash. */
 export function SplashScreen() {
-  const session = useSession();
+  const step = useDriverOnboarding();
   const reduceMotion = useReducedMotion();
   const progress = useSharedValue(0);
   const [minShown, setMinShown] = useState(reduceMotion);
@@ -24,8 +24,8 @@ export function SplashScreen() {
     return () => clearTimeout(t);
   }, [minShown]);
 
-  const ready = session.status !== 'loading' && minShown;
-  const target = session.status === 'signed-in' ? '/dashboard' : '/login';
+  const ready = step !== 'loading' && minShown;
+  const target = step === 'loading' ? '/landing' : step;
   useEffect(() => {
     if (!ready) return;
     const go = () => router.replace(target);

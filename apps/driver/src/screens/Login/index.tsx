@@ -3,7 +3,7 @@ import { GlydeText, hapticFor, layout, PrimaryButton, size, space, splash, TextF
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { supabase } from '@/lib/supabase';
@@ -52,7 +52,7 @@ export function LoginScreen() {
       return;
     }
     hapticFor('paymentSuccess');
-    router.replace('/dashboard');
+    router.replace('/'); // resumes onboarding (terms / permissions) or opens the dashboard
   };
 
   return (
@@ -110,6 +110,11 @@ export function LoginScreen() {
             </GlydeText>
           )}
           <PrimaryButton label="Log in" size="driver" loading={busy} haptic="confirm" onPress={() => void logIn()} />
+          <Pressable accessibilityRole="button" onPress={() => router.replace('/register')} style={styles.link}>
+            <GlydeText variant="callout" tone="secondary" style={styles.center}>
+              New driver? Create an account
+            </GlydeText>
+          </Pressable>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -125,4 +130,6 @@ const styles = StyleSheet.create({
   form: { width: '100%', maxWidth: layout.formMaxWidth, alignSelf: 'center', gap: space.lg },
   logo: { width: size.logoMedium, height: LOGO_HEIGHT },
   copy: { gap: space.xs },
+  link: { minHeight: size.tapMin, justifyContent: 'center' },
+  center: { textAlign: 'center' },
 });

@@ -36,6 +36,13 @@ export default function RootLayout() {
         <ThemeProvider theme="dark">
           <ToastProvider>
             <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
+              <Stack.Screen name="index" />
+              <Stack.Screen name="landing" options={{ gestureEnabled: false }} />
+              <Stack.Screen name="register" options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="verify" options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="signup" options={{ gestureEnabled: false }} />
+              <Stack.Screen name="terms" options={{ gestureEnabled: false }} />
+              <Stack.Screen name="permissions" options={{ gestureEnabled: false }} />
               <Stack.Screen name="dashboard" options={{ gestureEnabled: false }} />
             </Stack>
           </ToastProvider>
