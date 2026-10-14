@@ -1,10 +1,23 @@
 import * as Location from 'expo-location';
-import * as Notifications from 'expo-notifications';
+import type * as NotificationsModule from 'expo-notifications';
 import { useCallback, useEffect, useState } from 'react';
 import { AppState, Linking } from 'react-native';
 
 /** 'blocked' = refused and the OS won't show the prompt again: only Settings can change it. */
 export type PermissionStatus = 'unknown' | 'undetermined' | 'granted' | 'blocked';
+
+/**
+ * expo-notifications is loaded lazily: in Android Expo Go (SDK 53+) importing it at module load
+ * errors, which would take down the whole route. Null when unavailable.
+ */
+function loadNotifications(): typeof NotificationsModule | null {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- deliberate lazy load (see above)
+    return require('expo-notifications') as typeof NotificationsModule;
+  } catch {
+    return null;
+  }
+}
 
 type Raw = { granted: boolean; canAskAgain: boolean };
 // Not granted but the OS can still prompt → we can ask; otherwise only Settings can change it.
@@ -21,7 +34,7 @@ export function usePermissions() {
 
   useEffect(() => {
     const read = () => {
-      Notifications.getPermissionsAsync()
+      Promise.resolve(loadNotifications()?.getPermissionsAsync() ?? Promise.reject(new Error('unavailable')))
         .then((p) => setNotifications(toStatus(p)))
         .catch(() => setNotifications('undetermined'));
       Location.getForegroundPermissionsAsync()
@@ -36,7 +49,10 @@ export function usePermissions() {
   }, []);
 
   const requestNotifications = useCallback(async () => {
-    const p = await Notifications.requestPermissionsAsync().catch(() => null);
+    const p =
+      (await loadNotifications()
+        ?.requestPermissionsAsync()
+        .catch(() => null)) ?? null;
     const next = p ? toStatus(p) : 'blocked';
     setNotifications(next);
     return next;
