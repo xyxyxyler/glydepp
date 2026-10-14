@@ -44,6 +44,7 @@ export default function RootLayout() {
               <Stack.Screen name="terms" options={{ gestureEnabled: false }} />
               <Stack.Screen name="permissions" options={{ gestureEnabled: false }} />
               <Stack.Screen name="dashboard" options={{ gestureEnabled: false }} />
+              <Stack.Screen name="scanner" options={{ animation: 'slide_from_bottom' }} />
             </Stack>
           </ToastProvider>
         </ThemeProvider>
