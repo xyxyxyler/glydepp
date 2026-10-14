@@ -147,8 +147,12 @@ process.on('SIGINT', () => {
 
 await db.from('trips').update({ status: 'active' }).eq('id', tripId);
 
-let distance = 0;
-let nextStop = 0;
+// Resume from the bus's last known position (e.g. the replay was restarted at a new speed).
+const { data: lastFix } = await db.from('bus_positions').select('distance_m').eq('trip_id', tripId).maybeSingle();
+let distance = Math.min(length, lastFix?.distance_m ?? 0);
+let nextStop = stops.findIndex((s) => s.distance_m >= distance);
+if (nextStop < 0) nextStop = stops.length;
+if (distance > 0) console.log(`Resuming at ${(distance / 1000).toFixed(1)} km.`);
 // Simulated time follows the real clock (× rate), so slow network writes don't slow the bus.
 let lastTick = performance.now();
 let ticks = 0;
