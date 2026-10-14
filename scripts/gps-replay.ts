@@ -206,7 +206,7 @@ while (!stopped) {
 }
 
 if (stopped) {
-  console.log('\nStopped. Trip left active; re-run to resume from the bus's current position.');
+  console.log('\nStopped. Trip left active; re-run to resume from the bus’s current position.');
 } else {
   await db.from('trips').update({ status: 'completed' }).eq('id', tripId);
   console.log('Trip completed.');
