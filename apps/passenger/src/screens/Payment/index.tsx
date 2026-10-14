@@ -129,7 +129,10 @@ export function PaymentScreen() {
     setProcessing(false);
     if (r.status === 'succeeded') {
       hapticFor('paymentSuccess');
-      router.replace({ pathname: '/payment-success', params: { paymentId: held.paymentId } });
+      // Close the booking screens (seats, payment) so nothing from the booking keeps running
+      // underneath — then show the confirmation on top of Home.
+      router.dismissTo('/home');
+      router.push({ pathname: '/payment-success', params: { paymentId: held.paymentId } });
       return;
     }
     hapticFor('failure');

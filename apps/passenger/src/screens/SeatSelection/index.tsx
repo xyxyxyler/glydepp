@@ -24,10 +24,10 @@ import {
   useTheme,
   useToast,
 } from '@glyde/ui';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ChevronLeft } from 'lucide-react-native';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -87,8 +87,18 @@ export function SeatSelectionScreen() {
   const effective: SeatPick = { ...picks };
   lost.forEach((k) => delete effective[k]);
   const lostKey = lost.map((k) => `${k}:${picks[k]}`).join(',');
+  // Only warn while this screen is actually visible (never over another screen).
+  const focused = useRef(false);
+  useFocusEffect(
+    useCallback(() => {
+      focused.current = true;
+      return () => {
+        focused.current = false;
+      };
+    }, []),
+  );
   useEffect(() => {
-    if (!lostKey) return;
+    if (!lostKey || !focused.current) return;
     hapticFor('failure');
     toast.show({
       tone: 'warning',
