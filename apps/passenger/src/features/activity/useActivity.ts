@@ -4,6 +4,7 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 
 import { useSession } from '@/features/auth/useSession';
+import { useMyTicketChanges } from '@/features/tickets/useMyTicketChanges';
 import { supabase } from '@/lib/supabase';
 
 /** uix-spec 2.7 statuses (+ Upcoming / On trip for bookings not yet travelled). */
@@ -54,6 +55,8 @@ export function useActivity(): ActivityState {
   const [state, setState] = useState<ActivityState>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
   const refresh = useCallback(() => setAttempt((a) => a + 1), []);
+  // Live: a ticket scanned, completed or marked missed updates the list straight away.
+  useMyTicketChanges(refresh);
 
   useFocusEffect(
     useCallback(() => {
