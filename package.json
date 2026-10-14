@@ -23,7 +23,9 @@
     "dev:trips": "node scripts/dev-trips.ts",
     "seed:driver": "node scripts/seed-test-driver.ts",
     "dev:board": "node scripts/dev-board.ts",
-    "gps:auto": "node scripts/gps-auto.ts"
+    "gps:auto": "node scripts/gps-auto.ts",
+    "dev:invite": "node scripts/dev-owner.ts invite",
+    "dev:approve-driver": "node scripts/dev-owner.ts approve"
   },
   "devDependencies": {
     "supabase": "^2.120.0"

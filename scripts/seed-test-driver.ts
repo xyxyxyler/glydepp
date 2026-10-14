@@ -39,8 +39,23 @@ if (user) {
   user = data.user;
 }
 
-const { error } = await admin
-  .from('drivers')
-  .upsert({ id: user!.id, first_name: 'Kwame', last_name: 'Test', status: 'approved' });
+// The test fleet owner (stands in for the Bus Owner dashboard) owns the GLYDE-TEST buses.
+let { data: owner } = await admin.from('bus_owners').select('id').eq('name', 'Glyde Test Fleet').maybeSingle();
+if (!owner) {
+  ({ data: owner } = await admin.from('bus_owners').insert({ name: 'Glyde Test Fleet' }).select('id').single());
+  await admin.from('buses').update({ owner_id: owner!.id }).like('plate', 'GLYDE-TEST-%');
+}
+const now = new Date().toISOString();
+const { error } = await admin.from('drivers').upsert({
+  id: user!.id,
+  first_name: 'Kwame',
+  last_name: 'Test',
+  status: 'approved',
+  owner_id: owner!.id,
+  // Already onboarded, so the test driver goes straight to the dashboard.
+  terms_accepted_at: now,
+  terms_version: 'placeholder-2026-10-14',
+  onboarded_at: now,
+});
 if (error) throw error;
 console.log(`Test driver ready: ${phone} (approved) — password in .env.local as DRIVER_TEST_PASSWORD`);

@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      bus_owners: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       bus_positions: {
         Row: {
           distance_m: number
@@ -59,6 +80,7 @@ export type Database = {
           layout_id: string
           make: string | null
           model: string | null
+          owner_id: string | null
           plate: string
           status: Database["public"]["Enums"]["bus_status"]
         }
@@ -68,6 +90,7 @@ export type Database = {
           layout_id: string
           make?: string | null
           model?: string | null
+          owner_id?: string | null
           plate: string
           status?: Database["public"]["Enums"]["bus_status"]
         }
@@ -77,6 +100,7 @@ export type Database = {
           layout_id?: string
           make?: string | null
           model?: string | null
+          owner_id?: string | null
           plate?: string
           status?: Database["public"]["Enums"]["bus_status"]
         }
@@ -88,34 +112,152 @@ export type Database = {
             referencedRelation: "seat_layouts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "buses_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "bus_owners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      driver_alerts: {
+        Row: {
+          body: string | null
+          created_at: string
+          driver_id: string | null
+          id: string
+          title: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          driver_id?: string | null
+          id?: string
+          title: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          driver_id?: string | null
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_alerts_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      driver_invites: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          owner_id: string
+          revoked: boolean
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          owner_id: string
+          revoked?: boolean
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          owner_id?: string
+          revoked?: boolean
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_invites_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "bus_owners"
+            referencedColumns: ["id"]
+          },
         ]
       }
       drivers: {
         Row: {
           created_at: string
+          date_of_birth: string | null
           first_name: string
+          ghana_card_number: string | null
           id: string
           last_name: string
+          licence_number: string | null
+          liveness_passed_at: string | null
+          onboarded_at: string | null
+          owner_id: string | null
+          photo_path: string | null
+          residential_area: string | null
           status: Database["public"]["Enums"]["driver_status"]
+          terms_accepted_at: string | null
+          terms_version: string | null
           updated_at: string
+          voice_alerts: boolean
         }
         Insert: {
           created_at?: string
+          date_of_birth?: string | null
           first_name: string
+          ghana_card_number?: string | null
           id: string
           last_name: string
+          licence_number?: string | null
+          liveness_passed_at?: string | null
+          onboarded_at?: string | null
+          owner_id?: string | null
+          photo_path?: string | null
+          residential_area?: string | null
           status?: Database["public"]["Enums"]["driver_status"]
+          terms_accepted_at?: string | null
+          terms_version?: string | null
           updated_at?: string
+          voice_alerts?: boolean
         }
         Update: {
           created_at?: string
+          date_of_birth?: string | null
           first_name?: string
+          ghana_card_number?: string | null
           id?: string
           last_name?: string
+          licence_number?: string | null
+          liveness_passed_at?: string | null
+          onboarded_at?: string | null
+          owner_id?: string | null
+          photo_path?: string | null
+          residential_area?: string | null
           status?: Database["public"]["Enums"]["driver_status"]
+          terms_accepted_at?: string | null
+          terms_version?: string | null
           updated_at?: string
+          voice_alerts?: boolean
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "drivers_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "bus_owners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       fare_rules: {
         Row: {
@@ -533,6 +675,57 @@ export type Database = {
         }
         Relationships: []
       }
+      sos_alerts: {
+        Row: {
+          created_at: string
+          description: string
+          driver_id: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          priority: string
+          status: string
+          trip_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          driver_id: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          priority?: string
+          status?: string
+          trip_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          driver_id?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          priority?: string
+          status?: string
+          trip_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sos_alerts_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sos_alerts_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stops: {
         Row: {
           created_at: string
@@ -829,6 +1022,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      complete_driver_signup: {
+        Args: {
+          p_date_of_birth: string
+          p_first_name: string
+          p_ghana_card_number: string
+          p_invite_code: string
+          p_last_name: string
+          p_licence_number: string
+          p_photo_path: string
+          p_residential_area: string
+        }
+        Returns: undefined
+      }
       confirm_payment: {
         Args: {
           p_method: string
@@ -851,18 +1057,55 @@ export type Database = {
         Returns: Json
       }
       driver_current_trip: { Args: never; Returns: Json }
+      driver_demand: { Args: never; Returns: Json }
       driver_end_trip: { Args: { p_trip_id: string }; Returns: undefined }
+      driver_history: {
+        Args: never
+        Returns: {
+          departs_at: string
+          passengers: number
+          plate: string
+          route_name: string
+          status: Database["public"]["Enums"]["trip_status"]
+          trip_id: string
+        }[]
+      }
+      driver_sos: { Args: { p_description: string }; Returns: string }
       driver_start_trip: {
         Args: { p_bus_id: string; p_route_id: string }
         Returns: string
       }
       driver_today_summary: { Args: never; Returns: Json }
+      driver_trip_timeline: {
+        Args: { p_trip_id: string }
+        Returns: {
+          arrived_at: string
+          distance_m: number
+          expected_alight: number
+          expected_board: number
+          latitude: number
+          longitude: number
+          name: string
+          scanned_board: number
+          scheduled_at: string
+          stop_idx: number
+        }[]
+      }
+      driver_update_self: {
+        Args: {
+          p_onboarded?: boolean
+          p_terms_version?: string
+          p_voice_alerts?: boolean
+        }
+        Returns: undefined
+      }
       hold_seats: {
         Args: { p_pickup_stop_id: string; p_seats: Json; p_trip_id: string }
         Returns: Json
       }
       max_deferrals: { Args: never; Returns: number }
       my_wallet: { Args: never; Returns: number }
+      new_invite_code: { Args: never; Returns: string }
       new_ticket_code: { Args: never; Returns: string }
       pickup_wait: { Args: never; Returns: string }
       record_payment_failure: {
