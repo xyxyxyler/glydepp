@@ -1,7 +1,7 @@
 /**
  * Terms & Conditions shown during onboarding (uix-spec 2.1).
  *
- * PLACEHOLDER: Glyde has not supplied its legal terms yet. The sections below only restate rules
+ * PLACEHOLDER: Glyde has not supplied its legal terms yet (shared by the passenger and driver apps). The sections below only restate rules
  * already in docs/product.md and CLAUDE.md §6 so the screen can be built and tested. Replace the
  * whole TERMS object with the real text and bump `version` — acceptance is stored per version.
  */

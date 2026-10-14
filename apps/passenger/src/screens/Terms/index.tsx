@@ -7,7 +7,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { TERMS } from '@/features/legal/terms';
+import { TERMS } from '@glyde/domain';
 import { useProfile } from '@/features/profile/useProfile';
 
 /**
