@@ -103,3 +103,10 @@ const styles = StyleSheet.create({
   },
   driver: { height: size.driverTap },
 });
+
+/** DESIGN.md §3 status.danger fill for SOS (§8.11: red, always visible). White text on both themes. */
+export function DangerButton(props: ButtonProps) {
+  const { name, colors } = useTheme();
+  const ink = name === 'light' ? colors.ink.inverse : colors.ink.primary;
+  return <BaseButton {...props} colors={{ fill: colors.status.danger, fillPressed: colors.status.danger, ink }} />;
+}

@@ -5,7 +5,7 @@ export { easing } from './src/motion/easing';
 export { usePressScale } from './src/motion/usePressScale';
 
 export { GlydeText, type GlydeTextProps } from './src/components/GlydeText';
-export { PrimaryButton, SecondaryButton, type ButtonProps } from './src/components/Button';
+export { DangerButton, PrimaryButton, SecondaryButton, type ButtonProps } from './src/components/Button';
 export { Skeleton, type SkeletonProps } from './src/components/Skeleton';
 export { RollingNumber, formatGHS, type RollingNumberProps } from './src/components/RollingNumber';
 export { CheckDraw, type CheckDrawProps } from './src/components/CheckDraw';
