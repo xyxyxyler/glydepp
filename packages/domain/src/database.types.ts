@@ -539,6 +539,7 @@ export type Database = {
           bus_id: string
           created_at: string
           departs_at: string
+          driver_id: string | null
           id: string
           route_id: string
           status: Database["public"]["Enums"]["trip_status"]
@@ -547,6 +548,7 @@ export type Database = {
           bus_id: string
           created_at?: string
           departs_at: string
+          driver_id?: string | null
           id?: string
           route_id: string
           status?: Database["public"]["Enums"]["trip_status"]
@@ -555,6 +557,7 @@ export type Database = {
           bus_id?: string
           created_at?: string
           departs_at?: string
+          driver_id?: string | null
           id?: string
           route_id?: string
           status?: Database["public"]["Enums"]["trip_status"]
@@ -565,6 +568,13 @@ export type Database = {
             columns: ["bus_id"]
             isOneToOne: false
             referencedRelation: "buses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trips_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
             referencedColumns: ["id"]
           },
           {
@@ -707,6 +717,10 @@ export type Database = {
           pickup_idx: number
           seat_no: number
         }[]
+      }
+      validate_ticket: {
+        Args: { p_code: string; p_trip_id: string }
+        Returns: Json
       }
       wallet_test_credit_pesewas: { Args: never; Returns: number }
     }

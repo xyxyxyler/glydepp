@@ -1,7 +1,9 @@
 import type { Database } from '@glyde/domain';
 import type { LatLng } from '@glyde/ui';
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+
+import { useMyTicketChanges } from '@/features/tickets/useMyTicketChanges';
 
 import { supabase } from '@/lib/supabase';
 
@@ -21,6 +23,8 @@ export type ActiveTrip = {
   origin: string;
   pickup: ActiveStop;
   dropoffs: ActiveStop[];
+  /** Every stop on the route, in order (route progress / remaining stops). */
+  stops: ActiveStop[];
   seats: number[];
   /** Any ticket already scanned (in-trip state comes with the driver scanner). */
   boarded: boolean;
@@ -31,9 +35,28 @@ export type ActiveTrip = {
  * a scheduled or running trip. Re-read whenever Home regains focus — so it also restores after a
  * relaunch (DESIGN.md §8.6).
  */
-export function useActiveTrip(): { trip: ActiveTrip | null; loaded: boolean } {
+export function useActiveTrip(): {
+  trip: ActiveTrip | null;
+  loaded: boolean;
+  /** The trip that just ended while the passenger was on board (drop-off). */
+  completed: ActiveTrip | null;
+  dismissCompleted: () => void;
+} {
   const [trip, setTrip] = useState<ActiveTrip | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [completed, setCompleted] = useState<ActiveTrip | null>(null);
+  const previous = useRef<ActiveTrip | null>(null);
+  const dismissCompleted = useCallback(() => setCompleted(null), []);
+  /** Remember the trip; if a boarded trip is no longer active, it has just been completed. */
+  const commit = useCallback((next: ActiveTrip | null) => {
+    const prev = previous.current;
+    if (prev?.boarded && next?.paymentId !== prev.paymentId) setCompleted(prev);
+    previous.current = next;
+    setTrip(next);
+  }, []);
+  // Scanned at boarding / completed at drop-off → re-read straight away.
+  useMyTicketChanges(() => setAttempt((a) => a + 1));
 
   useFocusEffect(
     useCallback(() => {
@@ -52,7 +75,7 @@ export function useActiveTrip(): { trip: ActiveTrip | null; loaded: boolean } {
           if (cancelled) return;
           setLoaded(true);
           if (error || !data?.length) {
-            if (!error) setTrip(null); // offline: keep what we had
+            if (!error) commit(null); // offline: keep what we had
             return;
           }
           // Group tickets by booking; pick the booking whose trip departs first.
@@ -66,7 +89,7 @@ export function useActiveTrip(): { trip: ActiveTrip | null; loaded: boolean } {
           );
           const [paymentId, tickets] = bookings[0] ?? [];
           if (!paymentId || !tickets) {
-            setTrip(null);
+            commit(null);
             return;
           }
           const first = tickets[0];
@@ -81,10 +104,10 @@ export function useActiveTrip(): { trip: ActiveTrip | null; loaded: boolean } {
             .map(stopAt)
             .filter((s): s is ActiveStop => !!s);
           if (!pickup || !dropoffs.length) {
-            setTrip(null);
+            commit(null);
             return;
           }
-          setTrip({
+          commit({
             paymentId,
             tripId: first.trips.id,
             tripStatus: first.trips.status,
@@ -98,14 +121,20 @@ export function useActiveTrip(): { trip: ActiveTrip | null; loaded: boolean } {
             pickup,
             dropoffs,
             seats: tickets.map((t) => t.seat_no).sort((a, b) => a - b),
+            stops: stops
+              .map((rs) => stopAt(rs.stop_idx))
+              .filter((x): x is ActiveStop => !!x)
+              .sort((a, b) => a.idx - b.idx),
             boarded: tickets.some((t) => t.status === 'boarded'),
           });
         });
       return () => {
         cancelled = true;
       };
-    }, []),
+      // `attempt` re-runs the query when a ticket changes.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [attempt, commit]),
   );
 
-  return { trip, loaded };
+  return { trip, loaded, completed, dismissCompleted };
 }

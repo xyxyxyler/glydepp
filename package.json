@@ -21,7 +21,8 @@
     "db:seed": "set -a && . ./.env.local && set +a && PGPASSWORD=\"$SUPABASE_DB_PASSWORD\" psql \"$(cat supabase/.temp/pooler-url)\" -q -v ON_ERROR_STOP=1 -f supabase/seed.sql",
     "test:payments": "node scripts/test-payments.ts",
     "dev:trips": "node scripts/dev-trips.ts",
-    "seed:driver": "node scripts/seed-test-driver.ts"
+    "seed:driver": "node scripts/seed-test-driver.ts",
+    "dev:board": "node scripts/dev-board.ts"
   },
   "devDependencies": {
     "supabase": "^2.120.0"

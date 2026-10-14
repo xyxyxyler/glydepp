@@ -22,6 +22,7 @@ import { qrPayload } from '@/features/tickets/qr';
 import { shareTicketToken, useTickets, type Ticket } from '@/features/tickets/useTickets';
 import { formatAccraTime } from '@/features/time/useNow';
 
+import { BoardedMoment } from './components/BoardedMoment';
 import { QrFullScreen } from './components/QrFullScreen';
 import { TicketQr } from './components/TicketQr';
 
@@ -145,6 +146,12 @@ export function TicketScreen() {
         ticketCode={fullQr?.ticketCode ?? ''}
         onClose={() => setFullQr(null)}
       />
+      {state.status === 'ready' && state.justBoarded && (
+        <BoardedMoment
+          dropoff={tickets.find((t) => t.status === 'boarded')?.dropoff ?? ''}
+          onDone={() => router.replace('/home')}
+        />
+      )}
     </View>
   );
 }

@@ -34,6 +34,8 @@ import { useTripOptions } from '@/features/trips/useTripOptions';
 
 import { ActiveTripCard, type TripPhase } from './components/ActiveTripCard';
 import { HomeStatus } from './components/HomeStatus';
+import { InTripCard } from './components/InTripCard';
+import { TripCompleteCard } from './components/TripCompleteCard';
 import { IdleSheet } from './components/IdleSheet';
 import { TripResults } from './components/TripResults';
 import { TripRouteOverlay } from './components/TripRouteOverlay';
@@ -70,7 +72,7 @@ function HomeContent() {
   const [planAnother, setPlanAnother] = useState(false);
   const toast = useToast();
   const now = useNow(15_000);
-  const { trip: active } = useActiveTrip();
+  const { trip: active, completed, dismissCompleted } = useActiveTrip();
 
   const buses = useLiveBuses();
   const { permission, openSettings } = useLocationPermission();
@@ -114,7 +116,8 @@ function HomeContent() {
               busRecordedAt: activeBus.recordedAt,
             }
           : { status: 'scheduled', departsAt: active.departsAt, busDistanceM: null, busRecordedAt: null },
-        active.pickup.distanceM,
+        // Before boarding: ETA to the pickup. On board: ETA to the drop-off.
+        active.boarded ? active.dropoffs[0].distanceM : active.pickup.distanceM,
         { lengthM: active.lengthM, freeFlowS: active.freeFlowS },
       )
     : null;
@@ -155,6 +158,42 @@ function HomeContent() {
       message: 'Head to the stop and have your ticket ready.',
     });
   }, [approaching, active, toast]);
+
+  // On board: "Approaching [drop-off]" once the bus leaves the stop before it (decision 2026-10-14).
+  const stopBeforeDropoff = active?.boarded
+    ? active.stops.find((s) => s.idx === active.dropoffs[0].idx - 1)
+    : undefined;
+  const nearDropoff =
+    !!active?.boarded &&
+    !!activeBus &&
+    !!stopBeforeDropoff &&
+    activeBus.position.distanceM > stopBeforeDropoff.distanceM;
+  useEffect(() => {
+    if (!nearDropoff || !active) return;
+    const key = `${active.tripId}:dropoff`;
+    if (alertedFor.current === key) return;
+    alertedFor.current = key;
+    hapticFor('approaching');
+    toast.show({
+      tone: 'warning',
+      title: `Approaching ${active.dropoffs[0].name}`,
+      message: 'Your stop is next. Get ready to alight.',
+    });
+  }, [nearDropoff, active, toast]);
+
+  // Drop-off: the trip ends automatically (uix-spec 2.5) — arrival alert + completion card.
+  const completedKey = completed?.paymentId ?? null;
+  useEffect(() => {
+    if (!completed) return;
+    hapticFor('arrived');
+    toast.show({
+      tone: 'success',
+      title: `Arrived at ${completed.dropoffs[0].name}`,
+      message: 'Thanks for riding with Glyde.',
+    });
+    sheet.current?.snapTo('half');
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per completed trip
+  }, [completedKey]);
 
   const startPlanning = () => {
     setPlanning(true);
@@ -207,14 +246,26 @@ function HomeContent() {
 
       <BottomSheet
         ref={sheet}
-        scrollable={planning}
+        scrollable={planning || (showActive && !!active?.boarded)}
         onSnapChange={(next) => {
           setSnap(next);
           if (next !== 'full') planner.blur(); // minimised: stop editing (keyboard already closed)
         }}
         accessibilityLabel="Trip planner"
       >
-        {showActive && active ? (
+        {completed ? (
+          <Animated.View entering={FadeIn.duration(motion.base)} layout={LinearTransition}>
+            <TripCompleteCard stop={completed.dropoffs[0].name} onDone={dismissCompleted} />
+          </Animated.View>
+        ) : showActive && active?.boarded ? (
+          <Animated.View
+            entering={FadeIn.duration(motion.base)}
+            exiting={FadeOut.duration(motion.fast)}
+            layout={LinearTransition}
+          >
+            <InTripCard trip={active} busDistanceM={activeBus?.position.distanceM ?? null} etaMinutes={etaMinutes} />
+          </Animated.View>
+        ) : showActive && active ? (
           <Animated.View
             entering={FadeIn.duration(motion.base)}
             exiting={FadeOut.duration(motion.fast)}

@@ -9,6 +9,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import assert from 'node:assert/strict';
 
 import type { Database } from '../packages/domain/src/database.types.ts';
+import { internalEmailForPhone } from '../packages/domain/src/identity.ts';
 
 process.loadEnvFile(new URL('../.env.local', import.meta.url));
 process.loadEnvFile(new URL('../apps/passenger/.env.local', import.meta.url));
@@ -104,6 +105,30 @@ try {
   assert.equal((shared as { state: string }).state, 'valid');
   assert.equal((shared as { qr_token: string }).qr_token, paid!.qr_token);
   ok(`paid ticket ${paid!.ticket_code} has a QR, and its share link opens for someone else`);
+
+  // Boarding: the test driver scans it (same call as the conductor scanner and dev:board).
+  const driver = createClient<Database>(url, publishable, { auth: { persistSession: false } });
+  const { error: driverAuth } = await driver.auth.signInWithPassword({
+    email: internalEmailForPhone(process.env.DRIVER_TEST_PHONE as string),
+    password: process.env.DRIVER_TEST_PASSWORD as string,
+  });
+  if (driverAuth) throw driverAuth;
+  const scan1 = await driver.rpc('validate_ticket', { p_trip_id: tripId, p_code: `GLYDE1:${paid!.qr_token}` });
+  assert.equal((scan1.data as { result: string }).result, 'ok');
+  const scan2 = await driver.rpc('validate_ticket', { p_trip_id: tripId, p_code: paid!.ticket_code });
+  assert.equal((scan2.data as { result: string }).result, 'already_used');
+  // Bus reaches the drop-off (Madina): the ticket completes automatically.
+  const { data: madina } = await admin
+    .from('route_stops')
+    .select('distance_m, stops!inner(name)')
+    .eq('route_id', route!.id)
+    .eq('stops.name', 'Madina')
+    .single();
+  await admin.from('bus_positions').upsert({ trip_id: tripId, latitude: 5.68, longitude: -0.17, distance_m: madina!.distance_m });
+  const { data: after1 } = await client.from('tickets').select('status').eq('id', paid!.id).single();
+  assert.equal(after1!.status, 'completed');
+  await admin.from('bus_positions').delete().eq('trip_id', tripId);
+  ok('scan boards the ticket, a second scan is refused, reaching the drop-off completes it');
 
   const h2 = await hold(2);
   r = await fn('pay', { payment_id: h2.payment_id, method: 'card', details: { testOutcome: 'decline' } }, token);

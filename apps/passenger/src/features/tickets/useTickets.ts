@@ -1,9 +1,11 @@
 import 'expo-sqlite/localStorage/install';
 
 import { arrivalAt, type Database } from '@glyde/domain';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { supabase } from '@/lib/supabase';
+
+import { useMyTicketChanges } from './useMyTicketChanges';
 
 export type TicketStatus = Database['public']['Enums']['ticket_status'];
 export type Ticket = {
@@ -23,7 +25,7 @@ export type TicketsState =
   | { status: 'loading' }
   | { status: 'error'; retry: () => void }
   /** savedAt is set when showing the copy kept on the phone (offline). */
-  | { status: 'ready'; tickets: Ticket[]; savedAt: number | null; retry: () => void };
+  | { status: 'ready'; tickets: Ticket[]; savedAt: number | null; retry: () => void; justBoarded: boolean };
 
 const cacheKey = (paymentId: string) => `glyde.tickets.${paymentId}`;
 
@@ -44,6 +46,9 @@ export function useTickets(paymentId: string | undefined): TicketsState {
   const [state, setState] = useState<TicketsState>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
   const retry = useCallback(() => setAttempt((a) => a + 1), []);
+  // Live: the scan at boarding (or drop-off) updates the ticket while it's on screen.
+  useMyTicketChanges(retry);
+  const lastStatuses = useRef<Map<string, string>>(new Map());
 
   useEffect(() => {
     if (!paymentId) return;
@@ -61,7 +66,7 @@ export function useTickets(paymentId: string | undefined): TicketsState {
           const cached = readCache(paymentId);
           setState(
             cached
-              ? { status: 'ready', tickets: cached.tickets, savedAt: cached.savedAt, retry }
+              ? { status: 'ready', tickets: cached.tickets, savedAt: cached.savedAt, retry, justBoarded: false }
               : { status: 'error', retry },
           );
           return;
@@ -95,7 +100,12 @@ export function useTickets(paymentId: string | undefined): TicketsState {
         } catch {
           // Storage unavailable: tickets still show while online.
         }
-        setState({ status: 'ready', tickets, savedAt: null, retry });
+        // reserved → boarded since the last read = the scan just happened (DESIGN.md §8.7 moment).
+        const justBoarded = tickets.some(
+          (t) => t.status === 'boarded' && lastStatuses.current.get(t.id) === 'reserved',
+        );
+        lastStatuses.current = new Map(tickets.map((t) => [t.id, t.status]));
+        setState({ status: 'ready', tickets, savedAt: null, retry, justBoarded });
       });
     return () => {
       cancelled = true;
