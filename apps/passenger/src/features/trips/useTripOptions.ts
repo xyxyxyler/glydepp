@@ -86,7 +86,12 @@ export function useTripOptions(pickupId: string | null, dropoffIds: string[]): T
       bookable.sort((a, b) => (a.pickupEtaMs ?? Infinity) - (b.pickupEtaMs ?? Infinity));
       setResult({
         requestKey,
-        state: { status: 'ready', options: bookable, allPassed: options.length > 0 && options.every((o) => o.passed), retry },
+        state: {
+          status: 'ready',
+          options: bookable,
+          allPassed: options.length > 0 && options.every((o) => o.passed),
+          retry,
+        },
       });
     };
 

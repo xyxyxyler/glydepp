@@ -62,7 +62,11 @@ export function useSeatMap(tripId: string | null): SeatMapState {
             plate: trip.data.buses.plate,
             seatCount: layout.seat_count,
             grid: layout.grid as SeatCell[][],
-            taken: segments.data.map((s) => ({ seatNo: s.seat_no, pickupIdx: s.pickup_idx, dropoffIdx: s.dropoff_idx })),
+            taken: segments.data.map((s) => ({
+              seatNo: s.seat_no,
+              pickupIdx: s.pickup_idx,
+              dropoffIdx: s.dropoff_idx,
+            })),
           },
           stale: false,
         },

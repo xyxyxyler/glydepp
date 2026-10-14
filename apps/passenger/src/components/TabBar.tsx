@@ -24,7 +24,10 @@ export function TabBar({ state, navigation }: TabBarProps) {
   const insets = useSafeAreaInsets();
   return (
     <View
-      style={[styles.bar, { backgroundColor: colors.bg.base, borderColor: colors.border.default, paddingBottom: insets.bottom }]}
+      style={[
+        styles.bar,
+        { backgroundColor: colors.bg.base, borderColor: colors.border.default, paddingBottom: insets.bottom },
+      ]}
       accessibilityRole="tablist"
     >
       {state.routes.map((route, i) => {
@@ -66,5 +69,11 @@ export function TabBar({ state, navigation }: TabBarProps) {
 const styles = StyleSheet.create({
   bar: { flexDirection: 'row', borderTopWidth: size.hairline, paddingTop: space.xs },
   tab: { flex: 1, alignItems: 'center', gap: space.xxs, minHeight: size.tapMin + space.md },
-  pill: { width: size.tapMin + space.md, height: size.icon + space.xs, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  pill: {
+    width: size.tapMin + space.md,
+    height: size.icon + space.xs,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

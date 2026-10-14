@@ -5,7 +5,6 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, useReducedMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-
 const logo = require('@/assets/images/glyde-logo.png');
 
 /**

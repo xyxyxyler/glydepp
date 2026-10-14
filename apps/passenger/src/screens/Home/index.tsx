@@ -5,10 +5,12 @@ import {
   GlydeText,
   hapticFor,
   motion,
+  PromoCard,
   SecondaryButton,
   SheetHeightProvider,
   space,
   useSheetHeight,
+  useTheme,
   useToast,
   type BottomSheetHandle,
   type GlydeMapHandle,
@@ -30,6 +32,7 @@ import { useNetwork, type Stop } from '@/features/network/useNetwork';
 import { useRecentStops } from '@/features/network/useRecentStops';
 import { useNow } from '@/features/time/useNow';
 import { useProfile } from '@/features/profile/useProfile';
+import { usePromotions } from '@/features/promotions/usePromotions';
 import { useActiveTrip } from '@/features/trips/useActiveTrip';
 import { useTripOptions } from '@/features/trips/useTripOptions';
 
@@ -74,6 +77,8 @@ function HomeContent() {
   const toast = useToast();
   const now = useNow(15_000);
   const { trip: active, completed, dismissCompleted } = useActiveTrip();
+  const { featured, dismiss: dismissPromo } = usePromotions();
+  const { colors } = useTheme();
   // Settings → Trip alerts (default on until the profile has loaded).
   const { state: profileState } = useProfile();
   const alertsOn = profileState.status !== 'ready' || profileState.profile?.notify_trip_alerts !== false;
@@ -249,7 +254,23 @@ function HomeContent() {
         )}
       </GlydeMap>
 
-      <HomeStatus buses={buses} permission={permission} onOpenSettings={openSettings} quiet={showActive} />
+      <HomeStatus
+        buses={buses}
+        permission={permission}
+        onOpenSettings={openSettings}
+        quiet={showActive}
+        promo={
+          featured && !showActive && !planning && !completed ? (
+            <PromoCard
+              title={featured.title}
+              validity={featured.validity}
+              onPress={() => router.push('/account/promotions')}
+              onDismiss={() => dismissPromo(featured.id)}
+              backdrop={colors.bg.base}
+            />
+          ) : null
+        }
+      />
 
       <BottomSheet
         ref={sheet}

@@ -212,12 +212,15 @@ export type Database = {
           amount_pesewas: number
           attempts: number
           created_at: string
+          discount_pesewas: number
           expires_at: string
           failure_reason: string | null
+          gross_pesewas: number | null
           id: string
           method: string | null
           paid_at: string | null
           passenger_id: string
+          promotion_id: string | null
           provider: string | null
           provider_ref: string | null
           status: string
@@ -227,12 +230,15 @@ export type Database = {
           amount_pesewas: number
           attempts?: number
           created_at?: string
+          discount_pesewas?: number
           expires_at: string
           failure_reason?: string | null
+          gross_pesewas?: number | null
           id?: string
           method?: string | null
           paid_at?: string | null
           passenger_id: string
+          promotion_id?: string | null
           provider?: string | null
           provider_ref?: string | null
           status?: string
@@ -242,18 +248,28 @@ export type Database = {
           amount_pesewas?: number
           attempts?: number
           created_at?: string
+          discount_pesewas?: number
           expires_at?: string
           failure_reason?: string | null
+          gross_pesewas?: number | null
           id?: string
           method?: string | null
           paid_at?: string | null
           passenger_id?: string
+          promotion_id?: string | null
           provider?: string | null
           provider_ref?: string | null
           status?: string
           trip_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "payments_promotion_id_fkey"
+            columns: ["promotion_id"]
+            isOneToOne: false
+            referencedRelation: "promotions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "payments_trip_id_fkey"
             columns: ["trip_id"]
@@ -314,6 +330,90 @@ export type Database = {
           updated_at?: string
           use_areas_for_planning?: boolean
           work_location?: string
+        }
+        Relationships: []
+      }
+      promotion_redemptions: {
+        Row: {
+          created_at: string
+          discount_pesewas: number
+          id: string
+          passenger_id: string
+          payment_id: string
+          promotion_id: string
+        }
+        Insert: {
+          created_at?: string
+          discount_pesewas: number
+          id?: string
+          passenger_id: string
+          payment_id: string
+          promotion_id: string
+        }
+        Update: {
+          created_at?: string
+          discount_pesewas?: number
+          id?: string
+          passenger_id?: string
+          payment_id?: string
+          promotion_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promotion_redemptions_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: true
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promotion_redemptions_promotion_id_fkey"
+            columns: ["promotion_id"]
+            isOneToOne: false
+            referencedRelation: "promotions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      promotions: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          discount_type: string
+          discount_value: number
+          id: string
+          max_uses_per_passenger: number
+          route_code: string | null
+          title: string
+          valid_from: string
+          valid_until: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          discount_type: string
+          discount_value: number
+          id?: string
+          max_uses_per_passenger?: number
+          route_code?: string | null
+          title: string
+          valid_from?: string
+          valid_until: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          max_uses_per_passenger?: number
+          route_code?: string | null
+          title?: string
+          valid_from?: string
+          valid_until?: string
         }
         Relationships: []
       }

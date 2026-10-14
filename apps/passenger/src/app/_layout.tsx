@@ -49,7 +49,7 @@ export default function RootLayout() {
               <Stack.Screen name="payments/add-funds" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="payments/add-method" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="account/terms" options={{ animation: 'slide_from_right' }} />
-              <Stack.Screen name="account/[topic]" options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="account/promotions" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="account/settings" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="account/help" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="account/faqs" options={{ animation: 'slide_from_right' }} />

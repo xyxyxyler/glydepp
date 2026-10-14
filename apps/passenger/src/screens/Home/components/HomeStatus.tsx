@@ -1,4 +1,5 @@
 import { Banner, space, StatusChip } from '@glyde/ui';
+import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -11,13 +12,15 @@ type Props = {
   onOpenSettings: () => void;
   /** Active trip: hide the general 'finding / no buses' chips. */
   quiet?: boolean;
+  /** Featured promotion coupon (uix-spec 2.9 NB), shown when nothing more urgent is. */
+  promo?: ReactNode;
 };
 
 /**
  * Everything pinned over the top of the map (DESIGN.md §11 states). Banners for things the
  * user can act on; one quiet chip for loading / empty.
  */
-export function HomeStatus({ buses, permission, onOpenSettings, quiet = false }: Props) {
+export function HomeStatus({ buses, permission, onOpenSettings, quiet = false, promo }: Props) {
   const insets = useSafeAreaInsets();
   return (
     <View pointerEvents="box-none" style={[styles.stack, { top: insets.top + space.xs }]}>
@@ -38,6 +41,7 @@ export function HomeStatus({ buses, permission, onOpenSettings, quiet = false }:
       {!quiet && buses.status === 'ready' && buses.live && buses.buses.length === 0 && (
         <StatusChip label="No buses running right now" />
       )}
+      {promo}
     </View>
   );
 }

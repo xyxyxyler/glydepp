@@ -22,5 +22,11 @@ export function ScreenHeader({ backLabel = 'Back' }: { backLabel?: string }) {
 
 const styles = StyleSheet.create({
   row: { paddingHorizontal: space.xs, paddingBottom: space.xs },
-  back: { width: size.tapMin, height: size.tapMin, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  back: {
+    width: size.tapMin,
+    height: size.tapMin,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

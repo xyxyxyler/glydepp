@@ -1,366 +1,366 @@
 {
- "_note": "FAKE dev fixture. Road geometry Madina -> Adenta from the public OSRM demo server (OpenStreetMap data, ODbL), fetched once on 2026-10-13. Not a Glyde route or stop list.",
- "distanceMeters": 4511,
- "coordinates": [
-  {
-   "latitude": 5.682906,
-   "longitude": -0.16585
-  },
-  {
-   "latitude": 5.683027,
-   "longitude": -0.165847
-  },
-  {
-   "latitude": 5.683489,
-   "longitude": -0.165845
-  },
-  {
-   "latitude": 5.68397,
-   "longitude": -0.165841
-  },
-  {
-   "latitude": 5.684429,
-   "longitude": -0.165842
-  },
-  {
-   "latitude": 5.685078,
-   "longitude": -0.165864
-  },
-  {
-   "latitude": 5.685312,
-   "longitude": -0.165877
-  },
-  {
-   "latitude": 5.685468,
-   "longitude": -0.165879
-  },
-  {
-   "latitude": 5.685563,
-   "longitude": -0.165881
-  },
-  {
-   "latitude": 5.685675,
-   "longitude": -0.165879
-  },
-  {
-   "latitude": 5.686314,
-   "longitude": -0.165853
-  },
-  {
-   "latitude": 5.686323,
-   "longitude": -0.166449
-  },
-  {
-   "latitude": 5.686343,
-   "longitude": -0.167546
-  },
-  {
-   "latitude": 5.686354,
-   "longitude": -0.167831
-  },
-  {
-   "latitude": 5.686357,
-   "longitude": -0.167986
-  },
-  {
-   "latitude": 5.686358,
-   "longitude": -0.168079
-  },
-  {
-   "latitude": 5.68636,
-   "longitude": -0.168201
-  },
-  {
-   "latitude": 5.686364,
-   "longitude": -0.168555
-  },
-  {
-   "latitude": 5.686365,
-   "longitude": -0.169074
-  },
-  {
-   "latitude": 5.68637,
-   "longitude": -0.169142
-  },
-  {
-   "latitude": 5.686372,
-   "longitude": -0.169256
-  },
-  {
-   "latitude": 5.686378,
-   "longitude": -0.169546
-  },
-  {
-   "latitude": 5.686381,
-   "longitude": -0.169652
-  },
-  {
-   "latitude": 5.686383,
-   "longitude": -0.169741
-  },
-  {
-   "latitude": 5.686384,
-   "longitude": -0.169921
-  },
-  {
-   "latitude": 5.686385,
-   "longitude": -0.169983
-  },
-  {
-   "latitude": 5.686386,
-   "longitude": -0.170094
-  },
-  {
-   "latitude": 5.686402,
-   "longitude": -0.17038
-  },
-  {
-   "latitude": 5.686422,
-   "longitude": -0.170448
-  },
-  {
-   "latitude": 5.686431,
-   "longitude": -0.170608
-  },
-  {
-   "latitude": 5.686432,
-   "longitude": -0.170652
-  },
-  {
-   "latitude": 5.686441,
-   "longitude": -0.170913
-  },
-  {
-   "latitude": 5.686442,
-   "longitude": -0.170959
-  },
-  {
-   "latitude": 5.686439,
-   "longitude": -0.171016
-  },
-  {
-   "latitude": 5.686465,
-   "longitude": -0.171151
-  },
-  {
-   "latitude": 5.686526,
-   "longitude": -0.171264
-  },
-  {
-   "latitude": 5.686558,
-   "longitude": -0.171307
-  },
-  {
-   "latitude": 5.686623,
-   "longitude": -0.171364
-  },
-  {
-   "latitude": 5.686727,
-   "longitude": -0.171412
-  },
-  {
-   "latitude": 5.687052,
-   "longitude": -0.171437
-  },
-  {
-   "latitude": 5.688333,
-   "longitude": -0.171561
-  },
-  {
-   "latitude": 5.689392,
-   "longitude": -0.171619
-  },
-  {
-   "latitude": 5.69006,
-   "longitude": -0.171638
-  },
-  {
-   "latitude": 5.690376,
-   "longitude": -0.171644
-  },
-  {
-   "latitude": 5.690421,
-   "longitude": -0.171645
-  },
-  {
-   "latitude": 5.692248,
-   "longitude": -0.171683
-  },
-  {
-   "latitude": 5.693909,
-   "longitude": -0.171717
-  },
-  {
-   "latitude": 5.695578,
-   "longitude": -0.171743
-  },
-  {
-   "latitude": 5.696772,
-   "longitude": -0.171732
-  },
-  {
-   "latitude": 5.69682,
-   "longitude": -0.171732
-  },
-  {
-   "latitude": 5.697043,
-   "longitude": -0.17173
-  },
-  {
-   "latitude": 5.697296,
-   "longitude": -0.171729
-  },
-  {
-   "latitude": 5.697562,
-   "longitude": -0.171723
-  },
-  {
-   "latitude": 5.698198,
-   "longitude": -0.171745
-  },
-  {
-   "latitude": 5.698795,
-   "longitude": -0.171767
-  },
-  {
-   "latitude": 5.699192,
-   "longitude": -0.171768
-  },
-  {
-   "latitude": 5.69933,
-   "longitude": -0.171769
-  },
-  {
-   "latitude": 5.699874,
-   "longitude": -0.171766
-  },
-  {
-   "latitude": 5.700674,
-   "longitude": -0.171686
-  },
-  {
-   "latitude": 5.701312,
-   "longitude": -0.171616
-  },
-  {
-   "latitude": 5.701629,
-   "longitude": -0.171588
-  },
-  {
-   "latitude": 5.701921,
-   "longitude": -0.171556
-  },
-  {
-   "latitude": 5.703519,
-   "longitude": -0.1714
-  },
-  {
-   "latitude": 5.703996,
-   "longitude": -0.171354
-  },
-  {
-   "latitude": 5.704913,
-   "longitude": -0.171257
-  },
-  {
-   "latitude": 5.706215,
-   "longitude": -0.171127
-  },
-  {
-   "latitude": 5.706211,
-   "longitude": -0.170953
-  },
-  {
-   "latitude": 5.706233,
-   "longitude": -0.170801
-  },
-  {
-   "latitude": 5.706232,
-   "longitude": -0.170602
-  },
-  {
-   "latitude": 5.706231,
-   "longitude": -0.170325
-  },
-  {
-   "latitude": 5.70623,
-   "longitude": -0.170021
-  },
-  {
-   "latitude": 5.706203,
-   "longitude": -0.169349
-  },
-  {
-   "latitude": 5.706232,
-   "longitude": -0.169139
-  },
-  {
-   "latitude": 5.706178,
-   "longitude": -0.168144
-  },
-  {
-   "latitude": 5.706182,
-   "longitude": -0.167882
-  },
-  {
-   "latitude": 5.706196,
-   "longitude": -0.166998
-  },
-  {
-   "latitude": 5.706195,
-   "longitude": -0.166372
-  },
-  {
-   "latitude": 5.706195,
-   "longitude": -0.165972
-  },
-  {
-   "latitude": 5.706194,
-   "longitude": -0.165595
-  },
-  {
-   "latitude": 5.706191,
-   "longitude": -0.165507
-  },
-  {
-   "latitude": 5.706183,
-   "longitude": -0.165262
-  },
-  {
-   "latitude": 5.70618,
-   "longitude": -0.165153
-  },
-  {
-   "latitude": 5.706187,
-   "longitude": -0.165045
-  },
-  {
-   "latitude": 5.706166,
-   "longitude": -0.163561
-  },
-  {
-   "latitude": 5.706162,
-   "longitude": -0.162712
-  },
-  {
-   "latitude": 5.706158,
-   "longitude": -0.161474
-  },
-  {
-   "latitude": 5.706145,
-   "longitude": -0.160642
-  },
-  {
-   "latitude": 5.706149,
-   "longitude": -0.160285
-  },
-  {
-   "latitude": 5.706157,
-   "longitude": -0.159604
-  },
-  {
-   "latitude": 5.706154,
-   "longitude": -0.159002
-  }
- ]
+  "_note": "FAKE dev fixture. Road geometry Madina -> Adenta from the public OSRM demo server (OpenStreetMap data, ODbL), fetched once on 2026-10-13. Not a Glyde route or stop list.",
+  "distanceMeters": 4511,
+  "coordinates": [
+    {
+      "latitude": 5.682906,
+      "longitude": -0.16585
+    },
+    {
+      "latitude": 5.683027,
+      "longitude": -0.165847
+    },
+    {
+      "latitude": 5.683489,
+      "longitude": -0.165845
+    },
+    {
+      "latitude": 5.68397,
+      "longitude": -0.165841
+    },
+    {
+      "latitude": 5.684429,
+      "longitude": -0.165842
+    },
+    {
+      "latitude": 5.685078,
+      "longitude": -0.165864
+    },
+    {
+      "latitude": 5.685312,
+      "longitude": -0.165877
+    },
+    {
+      "latitude": 5.685468,
+      "longitude": -0.165879
+    },
+    {
+      "latitude": 5.685563,
+      "longitude": -0.165881
+    },
+    {
+      "latitude": 5.685675,
+      "longitude": -0.165879
+    },
+    {
+      "latitude": 5.686314,
+      "longitude": -0.165853
+    },
+    {
+      "latitude": 5.686323,
+      "longitude": -0.166449
+    },
+    {
+      "latitude": 5.686343,
+      "longitude": -0.167546
+    },
+    {
+      "latitude": 5.686354,
+      "longitude": -0.167831
+    },
+    {
+      "latitude": 5.686357,
+      "longitude": -0.167986
+    },
+    {
+      "latitude": 5.686358,
+      "longitude": -0.168079
+    },
+    {
+      "latitude": 5.68636,
+      "longitude": -0.168201
+    },
+    {
+      "latitude": 5.686364,
+      "longitude": -0.168555
+    },
+    {
+      "latitude": 5.686365,
+      "longitude": -0.169074
+    },
+    {
+      "latitude": 5.68637,
+      "longitude": -0.169142
+    },
+    {
+      "latitude": 5.686372,
+      "longitude": -0.169256
+    },
+    {
+      "latitude": 5.686378,
+      "longitude": -0.169546
+    },
+    {
+      "latitude": 5.686381,
+      "longitude": -0.169652
+    },
+    {
+      "latitude": 5.686383,
+      "longitude": -0.169741
+    },
+    {
+      "latitude": 5.686384,
+      "longitude": -0.169921
+    },
+    {
+      "latitude": 5.686385,
+      "longitude": -0.169983
+    },
+    {
+      "latitude": 5.686386,
+      "longitude": -0.170094
+    },
+    {
+      "latitude": 5.686402,
+      "longitude": -0.17038
+    },
+    {
+      "latitude": 5.686422,
+      "longitude": -0.170448
+    },
+    {
+      "latitude": 5.686431,
+      "longitude": -0.170608
+    },
+    {
+      "latitude": 5.686432,
+      "longitude": -0.170652
+    },
+    {
+      "latitude": 5.686441,
+      "longitude": -0.170913
+    },
+    {
+      "latitude": 5.686442,
+      "longitude": -0.170959
+    },
+    {
+      "latitude": 5.686439,
+      "longitude": -0.171016
+    },
+    {
+      "latitude": 5.686465,
+      "longitude": -0.171151
+    },
+    {
+      "latitude": 5.686526,
+      "longitude": -0.171264
+    },
+    {
+      "latitude": 5.686558,
+      "longitude": -0.171307
+    },
+    {
+      "latitude": 5.686623,
+      "longitude": -0.171364
+    },
+    {
+      "latitude": 5.686727,
+      "longitude": -0.171412
+    },
+    {
+      "latitude": 5.687052,
+      "longitude": -0.171437
+    },
+    {
+      "latitude": 5.688333,
+      "longitude": -0.171561
+    },
+    {
+      "latitude": 5.689392,
+      "longitude": -0.171619
+    },
+    {
+      "latitude": 5.69006,
+      "longitude": -0.171638
+    },
+    {
+      "latitude": 5.690376,
+      "longitude": -0.171644
+    },
+    {
+      "latitude": 5.690421,
+      "longitude": -0.171645
+    },
+    {
+      "latitude": 5.692248,
+      "longitude": -0.171683
+    },
+    {
+      "latitude": 5.693909,
+      "longitude": -0.171717
+    },
+    {
+      "latitude": 5.695578,
+      "longitude": -0.171743
+    },
+    {
+      "latitude": 5.696772,
+      "longitude": -0.171732
+    },
+    {
+      "latitude": 5.69682,
+      "longitude": -0.171732
+    },
+    {
+      "latitude": 5.697043,
+      "longitude": -0.17173
+    },
+    {
+      "latitude": 5.697296,
+      "longitude": -0.171729
+    },
+    {
+      "latitude": 5.697562,
+      "longitude": -0.171723
+    },
+    {
+      "latitude": 5.698198,
+      "longitude": -0.171745
+    },
+    {
+      "latitude": 5.698795,
+      "longitude": -0.171767
+    },
+    {
+      "latitude": 5.699192,
+      "longitude": -0.171768
+    },
+    {
+      "latitude": 5.69933,
+      "longitude": -0.171769
+    },
+    {
+      "latitude": 5.699874,
+      "longitude": -0.171766
+    },
+    {
+      "latitude": 5.700674,
+      "longitude": -0.171686
+    },
+    {
+      "latitude": 5.701312,
+      "longitude": -0.171616
+    },
+    {
+      "latitude": 5.701629,
+      "longitude": -0.171588
+    },
+    {
+      "latitude": 5.701921,
+      "longitude": -0.171556
+    },
+    {
+      "latitude": 5.703519,
+      "longitude": -0.1714
+    },
+    {
+      "latitude": 5.703996,
+      "longitude": -0.171354
+    },
+    {
+      "latitude": 5.704913,
+      "longitude": -0.171257
+    },
+    {
+      "latitude": 5.706215,
+      "longitude": -0.171127
+    },
+    {
+      "latitude": 5.706211,
+      "longitude": -0.170953
+    },
+    {
+      "latitude": 5.706233,
+      "longitude": -0.170801
+    },
+    {
+      "latitude": 5.706232,
+      "longitude": -0.170602
+    },
+    {
+      "latitude": 5.706231,
+      "longitude": -0.170325
+    },
+    {
+      "latitude": 5.70623,
+      "longitude": -0.170021
+    },
+    {
+      "latitude": 5.706203,
+      "longitude": -0.169349
+    },
+    {
+      "latitude": 5.706232,
+      "longitude": -0.169139
+    },
+    {
+      "latitude": 5.706178,
+      "longitude": -0.168144
+    },
+    {
+      "latitude": 5.706182,
+      "longitude": -0.167882
+    },
+    {
+      "latitude": 5.706196,
+      "longitude": -0.166998
+    },
+    {
+      "latitude": 5.706195,
+      "longitude": -0.166372
+    },
+    {
+      "latitude": 5.706195,
+      "longitude": -0.165972
+    },
+    {
+      "latitude": 5.706194,
+      "longitude": -0.165595
+    },
+    {
+      "latitude": 5.706191,
+      "longitude": -0.165507
+    },
+    {
+      "latitude": 5.706183,
+      "longitude": -0.165262
+    },
+    {
+      "latitude": 5.70618,
+      "longitude": -0.165153
+    },
+    {
+      "latitude": 5.706187,
+      "longitude": -0.165045
+    },
+    {
+      "latitude": 5.706166,
+      "longitude": -0.163561
+    },
+    {
+      "latitude": 5.706162,
+      "longitude": -0.162712
+    },
+    {
+      "latitude": 5.706158,
+      "longitude": -0.161474
+    },
+    {
+      "latitude": 5.706145,
+      "longitude": -0.160642
+    },
+    {
+      "latitude": 5.706149,
+      "longitude": -0.160285
+    },
+    {
+      "latitude": 5.706157,
+      "longitude": -0.159604
+    },
+    {
+      "latitude": 5.706154,
+      "longitude": -0.159002
+    }
+  ]
 }

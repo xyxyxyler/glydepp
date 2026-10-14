@@ -175,6 +175,12 @@ export function PaymentScreen() {
                   value={formatGHS(t.fare_pesewas)}
                 />
               ))}
+              {held.discountPesewas > 0 && (
+                <Row
+                  label={`Discount${held.promotionTitle ? ` · ${held.promotionTitle}` : ''}`}
+                  value={`−${formatGHS(held.discountPesewas)}`}
+                />
+              )}
               <View style={[styles.divider, { backgroundColor: colors.border.default }]} />
               <Row label="Total" value={formatGHS(held.amountPesewas)} strong />
             </>

@@ -20,6 +20,7 @@ const admin = createClient<Database>(url, process.env.SUPABASE_SECRET_KEY as str
 
 const PHONE = '+233200000002'; // test-only
 let tripId = '';
+let promoId = '';
 
 async function fn(name: string, body: unknown, token?: string) {
   const res = await fetch(`${url}/functions/v1/${name}`, {
@@ -40,6 +41,11 @@ async function signIn(): Promise<{ client: SupabaseClient<Database>; token: stri
 }
 
 async function cleanup() {
+  if (promoId) {
+    await admin.from('promotion_redemptions').delete().eq('promotion_id', promoId);
+    await admin.from('payments').update({ promotion_id: null }).eq('promotion_id', promoId);
+    await admin.from('promotions').delete().eq('id', promoId);
+  }
   if (tripId) {
     const { data: pays } = await admin.from('payments').select('id').eq('trip_id', tripId);
     const ids = (pays ?? []).map((p) => p.id);
@@ -151,6 +157,30 @@ try {
   const { data: after } = await client.rpc('my_wallet');
   assert.equal(after, 10000 - 1500 + 5000);
   ok('top-up credits the wallet; out-of-range, declined and wallet-to-wallet top-ups are refused');
+
+  // Promotions: a temporary test promo (deleted below) is applied on the server and counted once paid.
+  const { data: promo } = await admin
+    .from('promotions')
+    .insert({
+      title: 'E2E TEST — ignore',
+      discount_type: 'percent',
+      discount_value: 20,
+      route_code: 'ACC-DOD',
+      valid_until: new Date(Date.now() + 60_000).toISOString(),
+    })
+    .select('id')
+    .single();
+  promoId = promo!.id;
+  const hp = (await hold(4)) as { payment_id: string; amount_pesewas: number; discount_pesewas?: number };
+  assert.equal(hp.discount_pesewas, 300);
+  assert.equal(hp.amount_pesewas, 1200);
+  r = await fn('pay', { payment_id: hp.payment_id, method: 'card', details: {} }, token);
+  assert.equal(r.status, 'succeeded');
+  const { data: redemptions } = await client.from('promotion_redemptions').select('discount_pesewas');
+  assert.equal(redemptions?.length, 1);
+  const hp2 = (await hold(5)) as { discount_pesewas?: number };
+  assert.equal(hp2.discount_pesewas, 0);
+  ok('a promotion discounts the server price, is counted once paid, and is not reused');
 
   const h3 = await hold(3);
   await admin.from('payments').update({ expires_at: new Date(Date.now() - 1000).toISOString() }).eq('id', h3.payment_id);

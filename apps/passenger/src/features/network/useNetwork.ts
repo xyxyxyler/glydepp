@@ -29,7 +29,9 @@ export function useNetwork() {
     void (async () => {
       const [stops, routes] = await Promise.all([
         supabase.from('stops').select('id, name, latitude, longitude').order('name'),
-        supabase.from('routes').select('id, code, direction, length_m, free_flow_s, route_stops(stop_id, stop_idx, distance_m)'),
+        supabase
+          .from('routes')
+          .select('id, code, direction, length_m, free_flow_s, route_stops(stop_id, stop_idx, distance_m)'),
       ]);
       if (cancelled) return;
       if (stops.error || routes.error) {

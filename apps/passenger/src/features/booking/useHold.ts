@@ -4,7 +4,17 @@ import { supabase } from '@/lib/supabase';
 
 export type SeatPickParam = { dropoffStopId: string; seatNo: number };
 export type HeldTicket = { id: string; seat_no: number; fare_pesewas: number };
-export type Hold = { paymentId: string; amountPesewas: number; expiresAt: number; tickets: HeldTicket[] };
+export type Hold = {
+  paymentId: string;
+  /** Before discounts. */
+  grossPesewas: number;
+  discountPesewas: number;
+  promotionTitle: string | null;
+  /** What the passenger pays. */
+  amountPesewas: number;
+  expiresAt: number;
+  tickets: HeldTicket[];
+};
 
 export type HoldError =
   'seat_taken' | 'bus_passed' | 'not_bookable' | 'fare_not_set' | 'bad_stops' | 'offline' | 'server';
@@ -58,11 +68,22 @@ export function useHold(
           setState({ status: 'error', error: code ?? (offline ? 'offline' : 'server'), retry });
           return;
         }
-        const d = data as { payment_id: string; amount_pesewas: number; expires_at: string; tickets: HeldTicket[] };
+        const d = data as {
+          payment_id: string;
+          gross_pesewas: number;
+          discount_pesewas: number;
+          promotion_title: string | null;
+          amount_pesewas: number;
+          expires_at: string;
+          tickets: HeldTicket[];
+        };
         setState({
           status: 'held',
           hold: {
             paymentId: d.payment_id,
+            grossPesewas: d.gross_pesewas,
+            discountPesewas: d.discount_pesewas,
+            promotionTitle: d.promotion_title,
             amountPesewas: d.amount_pesewas,
             expiresAt: Date.parse(d.expires_at),
             tickets: d.tickets,
