@@ -1,5 +1,7 @@
-import { GlydeText, radius, RollingNumber, space, StatusChip, useTheme } from '@glyde/ui';
+import { GlydeText, motion, radius, RollingNumber, space, StatusChip, useTheme } from '@glyde/ui';
+import { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 
 import type { ChosenRoute } from './SetRouteSheet';
 import type { Counts, CurrentTrip } from '@/features/trip/useDriverTrip';
@@ -18,6 +20,17 @@ export function VehicleCard({
   counts: Counts | null;
 }) {
   const { colors } = useTheme();
+  // DESIGN.md §8.11: a brief green flash on the card each time the scanned count goes up.
+  const flash = useSharedValue(0);
+  const lastScanned = useRef<number | null>(null);
+  const scanned = counts?.scanned ?? null;
+  useEffect(() => {
+    if (scanned !== null && lastScanned.current !== null && scanned > lastScanned.current) {
+      flash.set(withSequence(withTiming(1, { duration: motion.fast }), withTiming(0, { duration: motion.slow * 2 })));
+    }
+    lastScanned.current = scanned;
+  }, [scanned, flash]);
+  const flashStyle = useAnimatedStyle(() => ({ opacity: flash.get() }));
   const vehicle = trip
     ? { name: [trip.make, trip.model].filter(Boolean).join(' '), plate: trip.plate, route: trip.routeName }
     : chosen
@@ -37,6 +50,10 @@ export function VehicleCard({
   }
   return (
     <View style={styles.root}>
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.flash, { backgroundColor: colors.statusTint.success }, flashStyle]}
+      />
       <View style={styles.head}>
         <View style={styles.flex}>
           <GlydeText variant="headline">
@@ -82,6 +99,14 @@ export function VehicleCard({
 
 const styles = StyleSheet.create({
   root: { gap: space.md },
+  flash: {
+    position: 'absolute',
+    top: -space.sm,
+    bottom: -space.sm,
+    left: -space.sm,
+    right: -space.sm,
+    borderRadius: radius.md,
+  },
   flex: { flex: 1, gap: space.xxs },
   head: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm },
   metrics: { flexDirection: 'row', gap: space.xs },
