@@ -151,6 +151,9 @@ let distance = 0;
 let nextStop = 0;
 // Simulated time follows the real clock (× rate), so slow network writes don't slow the bus.
 let lastTick = performance.now();
+let ticks = 0;
+/** Check the trip is still running every N fixes. */
+const STATUS_CHECK_EVERY = 5;
 let dwellLeft = 0;
 let heading = at(0).heading;
 
@@ -181,6 +184,14 @@ while (!stopped) {
 
   if (distance >= length || nextStop >= stops.length) break;
 
+  // The driver may end the trip early (or it was cancelled): stop driving it.
+  if (++ticks % STATUS_CHECK_EVERY === 0) {
+    const { data: t } = await db.from('trips').select('status').eq('id', tripId).single();
+    if (t?.status !== 'active') {
+      console.log(`Trip is ${t?.status ?? 'gone'} — stopping.`);
+      process.exit(0);
+    }
+  }
   const spent = performance.now() - lastTick;
   await sleep(Math.max(0, (tick / rate) * 1000 - spent));
   const now = performance.now();

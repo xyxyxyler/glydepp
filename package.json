@@ -22,7 +22,8 @@
     "test:payments": "node scripts/test-payments.ts",
     "dev:trips": "node scripts/dev-trips.ts",
     "seed:driver": "node scripts/seed-test-driver.ts",
-    "dev:board": "node scripts/dev-board.ts"
+    "dev:board": "node scripts/dev-board.ts",
+    "gps:auto": "node scripts/gps-auto.ts"
   },
   "devDependencies": {
     "supabase": "^2.120.0"

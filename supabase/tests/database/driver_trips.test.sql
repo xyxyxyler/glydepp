@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
 
-select plan(12);
+select plan(13);
 
 insert into auth.users (id, email) values
   ('90000000-0000-4000-8000-000000000001', 'kwame@driver.test'),
@@ -42,6 +42,8 @@ select is(driver_start_trip('90000000-0000-4000-8000-0000000000d0', '90000000-00
 select is((driver_current_trip() ->> 'trip_id')::uuid, '90000000-0000-4000-8000-0000000000e0'::uuid, 'it is the driver''s current trip');
 select throws_ok($$ select driver_start_trip('90000000-0000-4000-8000-0000000000d0', '90000000-0000-4000-8000-0000000000b0') $$,
   'P0001', 'already_driving', 'one running trip per driver');
+select is((select distance_m from bus_positions where trip_id = '90000000-0000-4000-8000-0000000000e0'), 0,
+  'starting puts the bus on the map at its first stop');
 select is(trip_passenger_counts('90000000-0000-4000-8000-0000000000e0'),
   '{"scanned": 0, "expected": 2, "pending": 2, "missed": 0}'::jsonb, 'counts before boarding');
 select is(validate_ticket('90000000-0000-4000-8000-0000000000e0', current_setting('test.code')) ->> 'result', 'ok', 'scan');
@@ -49,7 +51,7 @@ select is(trip_passenger_counts('90000000-0000-4000-8000-0000000000e0') ->> 'sca
 
 -- Bus reaches the final stop → trip ends; rider dropped off, no-show marked missed.
 reset role;
-insert into bus_positions (trip_id, latitude, longitude, distance_m) values ('90000000-0000-4000-8000-0000000000e0', 5.70, -0.17, 10000);
+update bus_positions set latitude = 5.70, longitude = -0.17, distance_m = 10000 where trip_id = '90000000-0000-4000-8000-0000000000e0';
 select is((select status::text from trips where id = '90000000-0000-4000-8000-0000000000e0'), 'completed', 'trip ends automatically at the final stop');
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "90000000-0000-4000-8000-000000000001", "role": "authenticated"}';
