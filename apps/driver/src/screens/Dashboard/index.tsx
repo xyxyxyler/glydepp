@@ -1,8 +1,10 @@
 import {
   GlydeText,
+  hapticFor,
   layout,
   PrimaryButton,
   radius,
+  RollingNumber,
   SecondaryButton,
   size,
   Skeleton,
@@ -13,14 +15,19 @@ import {
 import { Redirect, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState, type ReactNode } from 'react';
-import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useDriver } from '@/features/driver/useDriver';
+import { formatAccraDate } from '@/features/time/format';
+import { tripErrorMessage, useDriverTrip } from '@/features/trip/useDriverTrip';
+import { useFleet } from '@/features/trip/useFleet';
 import { supabase } from '@/lib/supabase';
 
 import { DashboardHeader, type DashboardTab } from './components/DashboardHeader';
+import { SetRouteSheet, type ChosenRoute } from './components/SetRouteSheet';
 import { StatusBadge } from './components/StatusBadge';
+import { VehicleCard } from './components/VehicleCard';
 
 /** Time-appropriate greeting in Accra (UTC+0 all year). */
 function greeting(now = new Date()): string {
@@ -40,6 +47,54 @@ export function DashboardScreen() {
   const toast = useToast();
   const state = useDriver();
   const [tab, setTab] = useState<DashboardTab>('overview');
+  // Captured once for the Daily Trip Summary date (Date.now() can't run during render).
+  const [today] = useState(() => Date.now());
+  const fleet = useFleet();
+  const { trip, counts, summary, start, end } = useDriverTrip();
+  const [chosen, setChosen] = useState<ChosenRoute | null>(null);
+  const [routeSheet, setRouteSheet] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [tripError, setTripError] = useState<string | null>(null);
+
+  const startTrip = async () => {
+    if (!chosen) return;
+    setBusy(true);
+    setTripError(null);
+    const r = await start(chosen.bus.id, chosen.route.id);
+    setBusy(false);
+    if (r.ok) {
+      hapticFor('paymentSuccess');
+      toast.show({
+        tone: 'success',
+        title: 'Trip started',
+        message: `${chosen.route.start} → ${chosen.route.end} · ${chosen.bus.plate}`,
+      });
+      return;
+    }
+    hapticFor('failure');
+    setTripError(tripErrorMessage(r.error));
+  };
+
+  const confirmEnd = () => {
+    Alert.alert(
+      'End this trip?',
+      'Passengers still on board are dropped off, and anyone not yet scanned is marked as missed.',
+      [
+        { text: 'Keep driving', style: 'cancel' },
+        {
+          text: 'End Trip',
+          style: 'destructive',
+          onPress: async () => {
+            setBusy(true);
+            const r = await end();
+            setBusy(false);
+            if (r.ok) toast.show({ tone: 'info', title: 'Trip ended' });
+            else setTripError(tripErrorMessage(r.error));
+          },
+        },
+      ],
+    );
+  };
 
   if (state.status === 'signed-out') return <Redirect href="/login" />;
 
@@ -92,19 +147,54 @@ export function DashboardScreen() {
           </View>
         )}
 
-        {/* Action Control Strip (uix-spec 3.2) */}
+        {/* Action Control Strip (uix-spec 3.2): Set Route, then Start Trip ↔ End Trip */}
         <View style={styles.actions}>
-          <SecondaryButton label="Set Route" size="driver" style={styles.flex} onPress={() => soon('Set Route')} />
-          <PrimaryButton
-            label="Start Trip"
+          <SecondaryButton
+            label={chosen ? 'Change route' : 'Set Route'}
             size="driver"
             style={styles.flex}
-            disabled
-            accessibilityHint={
-              canStart ? 'Set the route first' : 'Your account must be approved before you can start a trip'
-            }
+            disabled={!!trip}
+            accessibilityHint={trip ? 'End the trip to change the route' : undefined}
+            onPress={() => setRouteSheet(true)}
           />
+          {trip ? (
+            <PrimaryButton
+              label="End Trip"
+              size="driver"
+              style={styles.flex}
+              loading={busy}
+              haptic="confirm"
+              onPress={confirmEnd}
+            />
+          ) : (
+            <PrimaryButton
+              label="Start Trip"
+              size="driver"
+              style={styles.flex}
+              disabled={!canStart || !chosen}
+              loading={busy}
+              haptic="confirm"
+              accessibilityHint={
+                !canStart
+                  ? 'Your account must be approved before you can start a trip'
+                  : !chosen
+                    ? 'Set the route first'
+                    : undefined
+              }
+              onPress={() => void startTrip()}
+            />
+          )}
         </View>
+        {tripError && (
+          <GlydeText variant="callout" style={{ color: colors.status.danger }} accessibilityLiveRegion="polite">
+            {tripError}
+          </GlydeText>
+        )}
+        {__DEV__ && trip && (
+          <GlydeText variant="caption" tone="tertiary" selectable>
+            Dev: drive this bus with npm run gps:replay -- --trip {trip.tripId}
+          </GlydeText>
+        )}
         {driver && !canStart && (
           <GlydeText variant="callout" tone="secondary">
             {driver.status === 'pending'
@@ -115,16 +205,45 @@ export function DashboardScreen() {
 
         <View style={styles.grid}>
           <Card width={cardWidth} title="Vehicle & Route">
-            <Empty text="No route set. Set your route to see the bus, route and passenger counts." />
+            <VehicleCard trip={trip ?? null} chosen={chosen} counts={counts} />
           </Card>
           <Card width={cardWidth} title="Current Trip">
             <Empty text="No active trip. The stop timeline appears here once you start a trip." />
           </Card>
           <Card width={cardWidth} title="Today">
-            <Empty text="No trips completed yet today." />
+            <GlydeText variant="callout" tone="secondary">
+              {formatAccraDate(today)}
+            </GlydeText>
+            <View style={styles.summary}>
+              <View style={styles.flex}>
+                <RollingNumber value={summary?.tripsCompleted ?? 0} variant="display" />
+                <GlydeText variant="caption" tone="secondary">
+                  Trips completed
+                </GlydeText>
+              </View>
+              <View style={styles.flex}>
+                <RollingNumber value={summary?.passengers ?? 0} variant="display" />
+                <GlydeText variant="caption" tone="secondary">
+                  Passengers transported
+                </GlydeText>
+              </View>
+            </View>
           </Card>
         </View>
       </ScrollView>
+      <SetRouteSheet
+        visible={routeSheet}
+        buses={fleet.buses}
+        routes={fleet.routes}
+        initial={chosen}
+        onClose={() => setRouteSheet(false)}
+        onSet={(r) => {
+          hapticFor('selection');
+          setChosen(r);
+          setRouteSheet(false);
+          setTripError(null);
+        }}
+      />
     </View>
   );
 }
@@ -163,6 +282,7 @@ const styles = StyleSheet.create({
   },
   greeting: { gap: space.xxs },
   actions: { flexDirection: 'row', gap: space.md },
+  summary: { flexDirection: 'row', gap: space.md },
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -space.xs },
   cardWrap: { padding: space.xs },
   card: {

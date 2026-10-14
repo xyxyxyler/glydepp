@@ -57,6 +57,8 @@ export type Database = {
           created_at: string
           id: string
           layout_id: string
+          make: string | null
+          model: string | null
           plate: string
           status: Database["public"]["Enums"]["bus_status"]
         }
@@ -64,6 +66,8 @@ export type Database = {
           created_at?: string
           id?: string
           layout_id: string
+          make?: string | null
+          model?: string | null
           plate: string
           status?: Database["public"]["Enums"]["bus_status"]
         }
@@ -71,6 +75,8 @@ export type Database = {
           created_at?: string
           id?: string
           layout_id?: string
+          make?: string | null
+          model?: string | null
           plate?: string
           status?: Database["public"]["Enums"]["bus_status"]
         }
@@ -844,6 +850,13 @@ export type Database = {
         Args: { p_new_trip_id: string; p_payment_id: string }
         Returns: Json
       }
+      driver_current_trip: { Args: never; Returns: Json }
+      driver_end_trip: { Args: { p_trip_id: string }; Returns: undefined }
+      driver_start_trip: {
+        Args: { p_bus_id: string; p_route_id: string }
+        Returns: string
+      }
+      driver_today_summary: { Args: never; Returns: Json }
       hold_seats: {
         Args: { p_pickup_stop_id: string; p_seats: Json; p_trip_id: string }
         Returns: Json
@@ -857,6 +870,7 @@ export type Database = {
         Returns: undefined
       }
       release_expired_holds: { Args: { p_trip_id: string }; Returns: undefined }
+      require_approved_driver: { Args: never; Returns: string }
       seat_fare_pesewas: {
         Args: { p_distance_m: number; p_route_code: string }
         Returns: number
@@ -896,6 +910,7 @@ export type Database = {
           trip_status: Database["public"]["Enums"]["trip_status"]
         }[]
       }
+      trip_passenger_counts: { Args: { p_trip_id: string }; Returns: Json }
       trip_seat_segments: {
         Args: { p_trip_id: string }
         Returns: {
